@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "style-check": "prettier --check ./contracts/**/*.sol",
     "style-fix": "prettier --write ./contracts/**/*.sol",
-    "linter": "npx solhint ./contracts/**/*.sol"
+    "style-check": "prettier --check ./contracts/**/*.sol",
+    "linter-check": "npx solhint --max-warnings 0 ./contracts/**/*.sol",
+    "check": "npm run linter-check && npm run style-check"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run check"
     }
   }
 }
