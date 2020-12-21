@@ -4,11 +4,11 @@ pragma solidity 0.7.0;
 contract Storage {
     uint256 public val;
 
-    constructor(uint256 v) {
+    function setValue(uint256 v) public {
         val = v;
     }
 
-    function setValue(uint256 v) public {
-        val = v;
+    function getValue() public view returns (uint256) {
+        return val;
     }
 }

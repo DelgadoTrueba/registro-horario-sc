@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "style-fix": "prettier --write ./contracts/**/*.sol",
     "style-check": "prettier --check ./contracts/**/*.sol",
     "linter-check": "npx solhint --max-warnings 0 ./contracts/**/*.sol",
-    "check": "npm run linter-check && npm run style-check"
+    "check": "npm run linter-check && npm run style-check",
+    "pretest": "npm run check",
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "ganache-cli": "^6.12.1",
     "husky": "^4.3.5",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.2",
