@@ -1,3 +1,5 @@
+const BesuTestNet = require("./truffle-besu-config");
+
 module.exports = {
 
   networks: {
@@ -5,7 +7,13 @@ module.exports = {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 9545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
-    }
+    },
+    besu: {
+      provider: BesuTestNet.provider,
+      host: BesuTestNet.host,
+      port: BesuTestNet.port,
+      network_id: "*" 
+    },
   },
 
   // Set default mocha options here, use special reporters etc.
