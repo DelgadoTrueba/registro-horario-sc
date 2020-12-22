@@ -9,33 +9,14 @@ interface ITWorkdayRecord {
      ** DateIn & DateOut. action = new, modified
      ** Pauses. action => add, remove
      */
-    event DateInEvent(
-        uint256 indexed dateRegister,
-        bool action,
-        uint256 dateIn
-    );
-    event DateOutEvent(
-        uint256 indexed dateRegister,
-        bool action,
-        uint256 dateOut
-    );
-    event PauseEvent(
-        uint256 indexed dateRegister,
-        bool action,
-        uint256 dateIn,
-        uint256 dateOut
-    );
+    event DateInEvent(uint256 indexed dateRegister, bool action, uint256 dateIn);
+    event DateOutEvent(uint256 indexed dateRegister, bool action, uint256 dateOut);
+    event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut);
 
     /* Evento para obtener todos los registros de forma rapida
      **
      */
-    event WorkdayRecordEvent(
-        uint256 indexed dateRegister,
-        uint256 dateIn,
-        uint256[] pauses,
-        uint256 dateOut,
-        string comment
-    );
+    event WorkdayRecordEvent(uint256 indexed dateRegister, uint256 dateIn, uint256[] pauses, uint256 dateOut, string comment);
 
     // Obtener el registro horario de un día
     function getWorkday(uint256 dateRegister)
@@ -44,8 +25,9 @@ interface ITWorkdayRecord {
         returns (
             uint256 dateIn,
             uint256 dateOut,
+            uint256[] memory pauses,
             string memory comment,
-            uint256[] memory pauses
+            uint8 state
         );
 
     /* funcion manejadora del registro horario
