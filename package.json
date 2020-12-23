@@ -24,6 +24,7 @@
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "@openzeppelin/test-helpers": "^0.5.10",
     "@truffle/hdwallet-provider": "^1.2.0",
     "ganache-cli": "^6.12.1",
     "husky": "^4.3.5",
