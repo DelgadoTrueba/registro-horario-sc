@@ -9,7 +9,8 @@
     "check": "npm run linter-check && npm run style-check",
     "pretest": "npm run check",
     "test": "truffle test --network besu",
-    "size": "truffle compile & truffle run contract-size"
+    "size": "truffle compile & truffle run contract-size",
+    "coverage": "truffle run coverage"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.2",
     "solhint": "^3.3.2",
+    "solidity-coverage": "^0.7.13",
     "truffle": "^5.1.57",
     "truffle-contract-size": "^2.0.1"
   },
