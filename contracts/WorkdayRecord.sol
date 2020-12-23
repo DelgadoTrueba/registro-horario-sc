@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 import "./interfaces/ITWorkdayRecord.sol";
 
 contract WorkdayRecord is ITWorkdayRecord {
-    enum State {UNREGISTERED, UNCOMPLETED, COMPLETED}
+    enum State {UNREGISTERED, UNCOMPLETED, COMPLETED, MODIFIED}
 
     struct Workday {
         uint256 dateIn;
@@ -54,5 +54,27 @@ contract WorkdayRecord is ITWorkdayRecord {
 
         string memory c = _comment;
         c = "";
+    }
+
+    function addDateIn(uint256 dateRegister, uint256 _dateIn) external override {
+        uint256 prevDateIn = workDayRecord[dateRegister].dateIn;
+        workDayRecord[dateRegister].dateIn = _dateIn;
+
+        if (prevDateIn == 0) {
+            workDayRecord[dateRegister].state = State.UNCOMPLETED;
+            emit DateInEvent(
+                dateRegister,
+                /*NEW*/
+                true,
+                _dateIn
+            );
+        } else {
+            emit DateInEvent(
+                dateRegister,
+                /*MODIFIED*/
+                false,
+                _dateIn
+            );
+        }
     }
 }

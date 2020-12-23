@@ -45,4 +45,6 @@ interface ITWorkdayRecord {
         uint256[] calldata _pausesRemove,
         string calldata _comment
     ) external;
+
+    function addDateIn(uint256 dateRegister, uint256 _dateIn) external;
 }
