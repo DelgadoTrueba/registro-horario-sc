@@ -49,4 +49,8 @@ interface ITWorkdayRecord {
     function addDateIn(uint256 dateRegister, uint256 _dateIn) external;
 
     function changeDateIn(uint256 dateRegister, uint256 _dateIn) external;
+
+    function addDateOut(uint256 dateRegister, uint256 _dateOut) external;
+
+    function changeDateOut(uint256 dateRegister, uint256 _dateOut) external;
 }
