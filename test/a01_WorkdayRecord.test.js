@@ -6,14 +6,15 @@ const {
     BN,
     expectEvent,
     expectRevert 
-  } = require('@openzeppelin/test-helpers');
+} = require('@openzeppelin/test-helpers');
+const ZERO = new BN(0);
 
 contract("WorkdayRecord Contract:", (accounts) => {
 
     const {
         STATES, 
         CONST,
-        WORKDAY_INFO
+        WORKDAY_EXAMPLE,
     } = WorkdayRecordValues;
 
     let instance;
@@ -25,8 +26,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         });
     
         it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const ZERO = new BN(0);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
 
             let callResul = await instance.getWorkday(dateRegister);
            
@@ -38,8 +38,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should not be possible to change an dateIn before add one in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const dateIn = new BN(WORKDAY_INFO.dateIn);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
             
             await expectRevert.unspecified(
                 instance.changeDateIn(dateRegister, dateIn),
@@ -48,8 +48,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
     
         it("should be possible to add an initial dateIn in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const dateIn = new BN(WORKDAY_INFO.dateIn);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
             const UNCOMPLETED = new BN(STATES.UNCOMPLETED)
             
             let txReceipt = await instance.addDateIn(dateRegister, dateIn);
@@ -59,9 +59,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to get dateIn in a day´s record", async () => {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const dateIn = new BN(WORKDAY_INFO.dateIn);
-            const ZERO = new BN(0);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
             const UNCOMPLETED = new BN(STATES.UNCOMPLETED)
 
             let callResul = await instance.getWorkday(dateRegister);
@@ -78,24 +77,58 @@ contract("WorkdayRecord Contract:", (accounts) => {
     describe('UNCOMPLETED STATE', () => {
 
         before(async function() {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const dateIn = new BN(WORKDAY_INFO.dateIn);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
 
             instance = await WorkdayRecordContract.new();
             await instance.addDateIn(dateRegister, dateIn);
         });
 
+        it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
+
+            let callResul = await instance.getWorkday(dateRegister);
+           
+            assert.equal(callResul.state.eq(new BN(STATES.UNCOMPLETED)), true, `state must be UNCOMPLETED`);
+            assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
+            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
+            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
+            assert.equal(callResul.comment, "", `comment must be empty`);
+        })
+
         it("should not be possible to add an initial dateIn in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_INFO.dateRegister);
-            const dateIn = new BN(WORKDAY_INFO.dateIn);
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
             
             await expectRevert.unspecified(
                 instance.addDateIn(dateRegister, dateIn),
                 "COD0"
             );
-            
+          
         })
 
+        it("should be possible to change dateIn in a day's record", async () => {
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
+            
+            let txReceipt = await instance.changeDateIn(dateRegister, dateIn);
+    
+            expectEvent(txReceipt, 'DateInEvent', {dateRegister, action: CONST.MODIFIED, dateIn });
+        })
+
+        it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
+            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
+            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
+
+            let callResul = await instance.getWorkday(dateRegister);
+           
+            assert.equal(callResul.state.eq(new BN(STATES.UNCOMPLETED)), true, `state must be UNCOMPLETED`);
+            assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
+            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
+            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
+            assert.equal(callResul.comment, "", `comment must be empty`);
+        })
     });
 
 });

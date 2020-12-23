@@ -13,8 +13,11 @@ module.exports = Object.freeze({
         NEW: true,
         MODIFIED: false
     },
-    WORKDAY_INFO: {
+    WORKDAY_EXAMPLE: {
         dateRegister: toTimeStamp('22-12-2020', '00:00'),
-        dateIn: toTimeStamp('22-12-2020', '08:00')
-    }
+        dateIn: toTimeStamp('22-12-2020', '08:00'),
+        OTHERS: {
+            dateIn: toTimeStamp('22-12-2020', '08:45')
+        }
+    },
 });
