@@ -6,6 +6,37 @@ import "./interfaces/ITWorkdayRecord.sol";
 contract WorkdayRecord is ITWorkdayRecord {
     enum State {UNREGISTERED, UNCOMPLETED, COMPLETED, MODIFIED}
 
+    modifier atState(uint256 dateRegister, State state) {
+        require(workDayRecord[dateRegister].state == state, "COD0");
+        _;
+    }
+
+    modifier atLeast(uint256 dateRegister, State state) {
+        require(workDayRecord[dateRegister].state >= state, "COD0");
+        _;
+    }
+
+    modifier transitionTo(uint256 dateRegister, State state) {
+        _;
+        advanceState(dateRegister, state);
+    }
+
+    modifier transitionIfTo(
+        uint256 dateRegister,
+        State stateIf,
+        State stateTo
+    ) {
+        _;
+        if (workDayRecord[dateRegister].state == stateIf) {
+            advanceState(dateRegister, stateTo);
+        }
+    }
+
+    function advanceState(uint256 dateRegister, State state) private {
+        workDayRecord[dateRegister].state = state;
+        emit WorkdayRecordState(dateRegister, uint8(state));
+    }
+
     struct Workday {
         uint256 dateIn;
         uint256 dateOut;
@@ -56,25 +87,40 @@ contract WorkdayRecord is ITWorkdayRecord {
         c = "";
     }
 
-    function addDateIn(uint256 dateRegister, uint256 _dateIn) external override {
-        uint256 prevDateIn = workDayRecord[dateRegister].dateIn;
+    function addDateIn(uint256 dateRegister, uint256 _dateIn)
+        external
+        override
+        atState(dateRegister, State.UNREGISTERED)
+        transitionTo(dateRegister, State.UNCOMPLETED)
+    {
         workDayRecord[dateRegister].dateIn = _dateIn;
 
-        if (prevDateIn == 0) {
-            workDayRecord[dateRegister].state = State.UNCOMPLETED;
-            emit DateInEvent(
-                dateRegister,
-                /*NEW*/
-                true,
-                _dateIn
-            );
-        } else {
-            emit DateInEvent(
-                dateRegister,
-                /*MODIFIED*/
-                false,
-                _dateIn
-            );
-        }
+        emit DateInEvent(
+            dateRegister,
+            /*NEW*/
+            true,
+            _dateIn
+        );
+    }
+
+    function changeDateIn(uint256 dateRegister, uint256 _dateIn)
+        external
+        override
+        atLeast(dateRegister, State.UNCOMPLETED)
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
+    {
+        workDayRecord[dateRegister].dateIn = _dateIn;
+
+        emit DateInEvent(
+            dateRegister,
+            /*MODIFIED*/
+            false,
+            _dateIn
+        );
     }
 }
+
+// Error String
+/*  0x0 -> This function cannot be called at this stage.
+ **
+ */
