@@ -107,7 +107,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         external
         override
         atLeast(dateRegister, State.UNCOMPLETED)
-        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED) //TO TEST
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
         workDayRecord[dateRegister].dateIn = _dateIn;
 
