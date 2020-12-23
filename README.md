@@ -34,7 +34,7 @@ npx truffle test --network ganache
 
 ```bash
 docker pull hyperledger/besu:20.10.3
-docker run --name besu --rm -it -p 8545:8545 hyperledger/besu:20.10.3 --network=dev --miner-enabled --miner-coinbase=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins='all' --host-allowlist='*' --rpc-ws-enabled --rpc-http-enabled --rpc-http-api='ETH, NET, WEB3, DEBUG' --data-path=/tmp/tmpDatdir
+docker run --name besu --rm -it -p 8545:8545 hyperledger/besu:20.10.3 --network=dev --miner-enabled --miner-coinbase=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins='all' --host-allowlist='*' --rpc-ws-enabled --rpc-http-enabled --rpc-http-api='ETH, NET, WEB3, DEBUG' --data-path=/tmp/tmpDatdir --revert-reason-enabled=true
 ```
 
 ```bash

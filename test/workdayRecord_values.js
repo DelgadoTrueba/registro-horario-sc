@@ -6,7 +6,8 @@ module.exports = Object.freeze({
     STATES: {
         UNREGISTERED: 0,
         UNCOMPLETED: 1,
-        COMPLETED: 2
+        COMPLETED: 2,
+        MODIFIED: 3
     },
     CONST: {
         NEW: true,
