@@ -6,9 +6,18 @@ module.exports = Object.freeze({
     STATES: {
         UNREGISTERED: 0,
         UNCOMPLETED: 1,
-        COMPLETED: 2
+        COMPLETED: 2,
+        MODIFIED: 3
     },
-    UNREGISTERED: {
-        dateRegister: toTimeStamp('22-12-2020', '00:00')
-    }
+    CONST: {
+        NEW: true,
+        MODIFIED: false
+    },
+    WORKDAY_EXAMPLE: {
+        dateRegister: toTimeStamp('22-12-2020', '00:00'),
+        dateIn: toTimeStamp('22-12-2020', '08:00'),
+        OTHERS: {
+            dateIn: toTimeStamp('22-12-2020', '08:45')
+        }
+    },
 });
