@@ -53,4 +53,6 @@ interface ITWorkdayRecord {
     function addDateOut(uint256 dateRegister, uint256 _dateOut) external;
 
     function changeDateOut(uint256 dateRegister, uint256 _dateOut) external;
+
+    function addComment(uint256 dateRegister, string calldata _comment) external;
 }

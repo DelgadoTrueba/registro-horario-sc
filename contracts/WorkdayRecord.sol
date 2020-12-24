@@ -148,6 +148,10 @@ contract WorkdayRecord is ITWorkdayRecord {
             _dateOut
         );
     }
+
+    function addComment(uint256 dateRegister, string calldata _comment) external override atState(dateRegister, State.MODIFIED) {
+        workDayRecord[dateRegister].comment = _comment;
+    }
 }
 
 // Error String

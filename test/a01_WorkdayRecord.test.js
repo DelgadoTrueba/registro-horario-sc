@@ -23,8 +23,15 @@ contract("WorkdayRecord Contract:", (accounts) => {
         assert.equal(callResul.state.eq(state), true, `state must be ${state}`);
         assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
         assert.equal(callResul.dateOut.eq(dateOut), true, `dateOut must be ${dateOut.toString()}`);
+
         assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
-        assert.equal(callResul.comment, "", `comment must be empty`);
+        
+        if(comment){
+            assert.equal(callResul.comment, comment, `comment must be ${comment}`);
+        }
+        else {
+            assert.equal(callResul.comment, "", `comment must be empty`);
+        }
     }
 
     describe('UNREGISTERED STATE', () => {
@@ -49,6 +56,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
         it("should not be possible to change dateOut in a day's record", async () => {
             await expectRevert.unspecified(
                 instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            );
+        })
+
+        it("should not be possible to add comment", async () => {
+            await expectRevert.unspecified(
+                instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment)
             );
         })
     
@@ -94,6 +107,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
             await expectRevert.unspecified(
                 instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut),
                 "COD0"
+            );
+        })
+
+        it("should not be possible to add comment", async () => {
+            await expectRevert.unspecified(
+                instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment)
             );
         })
 
@@ -153,6 +172,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
         it("should not be posible to add initial dateOut", async () => {
             await expectRevert.unspecified(
                 instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            );
+        })
+
+        it("should not be possible to add comment", async () => {
+            await expectRevert.unspecified(
+                instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment)
             );
         })
 
@@ -240,9 +265,14 @@ contract("WorkdayRecord Contract:", (accounts) => {
             });
         })
 
+        it("should be possible to add comment", async () => {
+           await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
+        })
+
         it('should be possible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
             await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+            await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
@@ -250,7 +280,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 WORKDAY_EXAMPLE.OTHERS.dateIn, 
                 WORKDAY_EXAMPLE.OTHERS.dateOut, 
                 null, 
-                null
+                WORKDAY_EXAMPLE.comment
             );
         })
     })
