@@ -19,116 +19,239 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
     let instance;
 
+    const checkWorkdayInfo = (callResul, state, dateIn, dateOut, pauses, comment) => {
+        assert.equal(callResul.state.eq(state), true, `state must be ${state}`);
+        assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
+        assert.equal(callResul.dateOut.eq(dateOut), true, `dateOut must be ${dateOut.toString()}`);
+        assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
+        assert.equal(callResul.comment, "", `comment must be empty`);
+    }
+
     describe('UNREGISTERED STATE', () => {
 
-        before(async function() {
+        beforeEach(async function() {
             instance = await WorkdayRecordContract.new();
         });
-    
-        it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-
-            let callResul = await instance.getWorkday(dateRegister);
-           
-            assert.equal(callResul.state.eq(new BN(STATES.UNREGISTERED)), true, `state must be UNREGISTERED`);
-            assert.equal(callResul.dateIn.eq(ZERO), true, `dateIn must be ${ZERO.toString()}`);
-            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
-            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
-            assert.equal(callResul.comment, "", `comment must be empty`);
+        
+        it("should not be possible to change an dateIn before add one in a day's record", async () => {      
+            await expectRevert.unspecified(
+                instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn),
+                "COD0"
+            );
         })
 
-        it("should not be possible to change an dateIn before add one in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
-            
+        it("should not be possible to add dateOut in a day's record", async () => {
             await expectRevert.unspecified(
-                instance.changeDateIn(dateRegister, dateIn),
-                "COD0"
+                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            );
+        })
+
+        it("should not be possible to change dateOut in a day's record", async () => {
+            await expectRevert.unspecified(
+                instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
             );
         })
     
         it("should be possible to add an initial dateIn in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
-            const UNCOMPLETED = new BN(STATES.UNCOMPLETED)
-            
-            let txReceipt = await instance.addDateIn(dateRegister, dateIn);
+            let txReceipt = await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
     
-            expectEvent(txReceipt, 'DateInEvent', {dateRegister, action: CONST.NEW, dateIn });
-            expectEvent(txReceipt, 'WorkdayRecordState', {dateRegister, state: UNCOMPLETED});
+            expectEvent(txReceipt, 'DateInEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.NEW, 
+                dateIn: WORKDAY_EXAMPLE.dateIn 
+            });
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.UNCOMPLETED
+            });
         })
 
-        it("should be possible to get dateIn in a day´s record", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
-            const UNCOMPLETED = new BN(STATES.UNCOMPLETED)
-
-            let callResul = await instance.getWorkday(dateRegister);
-           
-            assert.equal(callResul.state.eq(UNCOMPLETED), true, `state must be UNCOMPLETED`);
-            assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
-            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
-            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
-            assert.equal(callResul.comment, "", `comment must be empty`);
+        it("should be possible to get workdayInfo", async () => {
+            let txReceipt, callResul;
+            
+            txReceipt = await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+    
+            callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
+            checkWorkdayInfo(callResul, STATES.UNCOMPLETED, WORKDAY_EXAMPLE.dateIn, ZERO, null, null);
         })
-
     });
     
     describe('UNCOMPLETED STATE', () => {
 
-        before(async function() {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
-
+        beforeEach(async function() {
             instance = await WorkdayRecordContract.new();
-            await instance.addDateIn(dateRegister, dateIn);
+            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
         });
 
-        it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.dateIn);
-
-            let callResul = await instance.getWorkday(dateRegister);
-           
-            assert.equal(callResul.state.eq(new BN(STATES.UNCOMPLETED)), true, `state must be UNCOMPLETED`);
-            assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
-            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
-            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
-            assert.equal(callResul.comment, "", `comment must be empty`);
-        })
-
-        it("should not be possible to add an initial dateIn in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
-            
+        it("should not be possible to add an initial dateIn in a day's record", async () => {         
             await expectRevert.unspecified(
-                instance.addDateIn(dateRegister, dateIn),
+                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn),
                 "COD0"
             );
-          
+        })
+        
+        it("should not be possible to change dateOut before add one in a day´s record", async () => {
+            await expectRevert.unspecified(
+                instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut),
+                "COD0"
+            );
         })
 
-        it("should be possible to change dateIn in a day's record", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
-            
-            let txReceipt = await instance.changeDateIn(dateRegister, dateIn);
+        it("should be possible to change dateIn in a day's record", async () => {     
+            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
-            expectEvent(txReceipt, 'DateInEvent', {dateRegister, action: CONST.MODIFIED, dateIn });
+            expectEvent(txReceipt, 'DateInEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.MODIFIED, 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+            });
         })
 
-        it("should be possible to get the workdayInfo (dateIn, dateOut, pauses, comment and state) of a unregistered day", async () => {
-            const dateRegister = new BN(WORKDAY_EXAMPLE.dateRegister);
-            const dateIn = new BN(WORKDAY_EXAMPLE.OTHERS.dateIn);
+        it("should be possible to add dateOut in a day's record", async () => { 
+            let txReceipt = await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
+    
+            expectEvent(txReceipt, 'DateOutEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.NEW, 
+                dateOut: WORKDAY_EXAMPLE.dateOut
+             });
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister:WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.COMPLETED
+            });
+        })
 
-            let callResul = await instance.getWorkday(dateRegister);
-           
-            assert.equal(callResul.state.eq(new BN(STATES.UNCOMPLETED)), true, `state must be UNCOMPLETED`);
-            assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
-            assert.equal(callResul.dateOut.eq(ZERO), true, `dateOut must be ${ZERO.toString()}`);
-            assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
-            assert.equal(callResul.comment, "", `comment must be empty`);
+        it('should be posible to get workdayInfo', async () => {
+            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
+
+            let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
+            checkWorkdayInfo(callResul, 
+                STATES.COMPLETED, 
+                WORKDAY_EXAMPLE.OTHERS.dateIn, 
+                WORKDAY_EXAMPLE.dateOut, 
+                null, 
+                null
+            );
         })
     });
 
+    describe('COMPLETED STATE', () => {
+
+        beforeEach(async() => {
+            instance = await WorkdayRecordContract.new();
+            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+        });
+
+        it("should not be posible to add initial dateIn", async () => {
+            await expectRevert.unspecified(
+                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
+            );
+        })
+
+        it("should not be posible to add initial dateOut", async () => {
+            await expectRevert.unspecified(
+                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            );
+        })
+
+        it("should be possible to change dateIn in a day's record", async () => {
+            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+    
+            expectEvent(txReceipt, 'DateInEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.MODIFIED, 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+            });
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.MODIFIED
+            });
+        })
+
+        it("should be possible to change dateOut in a day's record", async () => {
+            let txReceipt = await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+    
+            expectEvent(txReceipt, 'DateOutEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.MODIFIED, 
+                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
+            });
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.MODIFIED
+            });
+        })
+
+        it('should be possible to get workdayInfo', async () => {
+            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+
+            let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
+            checkWorkdayInfo(callResul, 
+                STATES.MODIFIED, 
+                WORKDAY_EXAMPLE.OTHERS.dateIn, 
+                WORKDAY_EXAMPLE.OTHERS.dateOut, 
+                null, 
+                null
+            );
+        })
+    })
+
+    describe('MODIFIED STATE', () => {
+
+        beforeEach(async() => {
+            instance = await WorkdayRecordContract.new();
+            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
+        });
+
+        it("should not be posible to add initial dateIn", async () => {
+            await expectRevert.unspecified(
+                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
+            );
+        })
+
+        it("should not be posible to add initial dateOut", async () => {
+            await expectRevert.unspecified(
+                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            );
+        })
+
+        it("should be possible to change dateIn in a day's record", async () => {
+            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+    
+            expectEvent(txReceipt, 'DateInEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.MODIFIED, 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+            });
+        })
+
+        it("should be possible to change dateOut in a day's record", async () => {
+            let txReceipt = await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+    
+            expectEvent(txReceipt, 'DateOutEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.MODIFIED, 
+                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
+            });
+        })
+
+        it('should be possible to get workdayInfo', async () => {
+            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+
+            let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
+            checkWorkdayInfo(callResul, 
+                STATES.MODIFIED, 
+                WORKDAY_EXAMPLE.OTHERS.dateIn, 
+                WORKDAY_EXAMPLE.OTHERS.dateOut, 
+                null, 
+                null
+            );
+        })
+    })
 });

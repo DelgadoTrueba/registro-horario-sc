@@ -107,7 +107,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         external
         override
         atLeast(dateRegister, State.UNCOMPLETED)
-        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED) //TO TEST
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
         workDayRecord[dateRegister].dateIn = _dateIn;
 
@@ -116,6 +116,36 @@ contract WorkdayRecord is ITWorkdayRecord {
             /*MODIFIED*/
             false,
             _dateIn
+        );
+    }
+
+    function addDateOut(uint256 dateRegister, uint256 _dateOut)
+        external
+        override
+        atState(dateRegister, State.UNCOMPLETED)
+        transitionTo(dateRegister, State.COMPLETED)
+    {
+        workDayRecord[dateRegister].dateOut = _dateOut;
+        emit DateOutEvent(
+            dateRegister,
+            /*NEW*/
+            true,
+            _dateOut
+        );
+    }
+
+    function changeDateOut(uint256 dateRegister, uint256 _dateOut)
+        external
+        override
+        atLeast(dateRegister, State.COMPLETED)
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
+    {
+        workDayRecord[dateRegister].dateOut = _dateOut;
+        emit DateOutEvent(
+            dateRegister,
+            /*MODIFED*/
+            false,
+            _dateOut
         );
     }
 }
