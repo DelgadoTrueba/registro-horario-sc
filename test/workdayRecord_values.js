@@ -18,6 +18,7 @@ module.exports = Object.freeze({
         dateRegister: new BN( toTimeStamp('22-12-2020', '00:00') ),
         dateIn: new BN( toTimeStamp('22-12-2020', '08:00') ),
         dateOut: new BN( toTimeStamp('22-11-2020', '17:15') ),
+        comment: 'Comentario de Ejemlo',
         OTHERS: {
             dateIn: new BN( toTimeStamp('22-12-2020', '08:45') ),
             dateOut: new BN( toTimeStamp('22-11-2020', '18:00') )
