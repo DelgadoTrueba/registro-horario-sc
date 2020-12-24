@@ -199,7 +199,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
     })
 
-    describe.only('MODIFIED STATE', () => {
+    describe('MODIFIED STATE', () => {
 
         beforeEach(async() => {
             instance = await WorkdayRecordContract.new();
