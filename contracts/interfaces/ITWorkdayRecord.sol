@@ -57,4 +57,6 @@ interface ITWorkdayRecord {
     function addComment(uint256 dateRegister, string calldata _comment) external;
 
     function addPauses(uint256 dateRegister, uint256[] calldata _pauses) external;
+
+    function removePauses(uint256 dateRegister, uint256[] memory _pauses) external;
 }
