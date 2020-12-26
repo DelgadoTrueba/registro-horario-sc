@@ -184,7 +184,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         uint256 _dateIn,
         uint256 _dateOut
     ) private {
-        require(workDayRecord[dateRegister].pauses.length <= 6, "COD2");
+        require(workDayRecord[dateRegister].pauses.length < 6, "COD2");
         workDayRecord[dateRegister].pauses.push(_dateIn);
         workDayRecord[dateRegister].pauses.push(_dateOut);
         emit PauseEvent(
