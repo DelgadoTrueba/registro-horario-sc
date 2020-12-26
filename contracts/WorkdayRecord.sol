@@ -16,7 +16,7 @@ contract WorkdayRecord {
     /* Evento para obtener todos los registros de forma rapida
      **
      */
-    event WorkdayRecordEvent(uint256 indexed dateRegister, uint256 dateIn, uint256[] pauses, uint256 dateOut, string comment);
+    event WorkdayRecordEvent(uint256 indexed dateRegister, uint256 dateIn, uint256[] pauses, uint256 dateOut, string comment, uint8 state);
 
     enum State {UNREGISTERED, UNCOMPLETED, COMPLETED, MODIFIED}
 
@@ -82,22 +82,33 @@ contract WorkdayRecord {
     }
 
     function record(
-        uint256 dateRegister,
+        uint256 _dateRegister,
         uint256 _dateIn,
         uint256 _dateOut,
         uint256[] calldata _pausesAdd,
         uint256[] calldata _pausesRemove,
         string calldata _comment
     ) external {
-        uint256 a = dateRegister;
-        a = _dateIn;
-        a = _dateOut;
+        require(_dateRegister != 0, "COD7");
 
-        uint256[] memory b = _pausesAdd;
-        b = _pausesRemove;
+        if (_dateIn != 0) addDateIn(_dateRegister, _dateIn);
+        if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
+        if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
+        if (_dateOut != 0) addDateOut(_dateRegister, _dateOut);
+        if (bytes(_comment).length != 0) addComment(_dateRegister, _comment);
 
-        string memory c = _comment;
-        c = "";
+        emitWorkdayRecord(_dateRegister);
+    }
+
+    function emitWorkdayRecord(uint256 _dateRegister) private {
+        emit WorkdayRecordEvent(
+            _dateRegister,
+            workDayRecord[_dateRegister].dateIn,
+            workDayRecord[_dateRegister].pauses,
+            workDayRecord[_dateRegister].dateOut,
+            workDayRecord[_dateRegister].comment,
+            uint8(workDayRecord[_dateRegister].state)
+        );
     }
 
     function addDateIn(uint256 dateRegister, uint256 _dateIn) public atState(dateRegister, State.UNREGISTERED) transitionTo(dateRegister, State.UNCOMPLETED) {
@@ -252,4 +263,5 @@ contract WorkdayRecord {
  ** COD4 -> Invalid index, in removeElement operation
  ** COD5 -> REMOVE ARRAY TO LONGH
  ** COD6 -> pauses array is empty
+ ** COD7 -> Invalid dateRegister
  */
