@@ -195,10 +195,58 @@ contract WorkdayRecord is ITWorkdayRecord {
             _dateOut
         );
     }
+
+    function removePauses(uint256 dateRegister, uint256[] memory _pauses)
+        external
+        override
+        atLeast(dateRegister, State.UNCOMPLETED)
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
+    {
+        require(_pauses.length % 2 == 0, "COD1");
+        for (uint256 i = 0; i < _pauses.length; i = i + 2) {
+            uint256[] storage pauses = workDayRecord[dateRegister].pauses;
+            removePause(pauses, _pauses[i], _pauses[i + 1]);
+            emit PauseEvent(
+                dateRegister,
+                /*REMOVE*/
+                false,
+                _pauses[i],
+                _pauses[i + 1]
+            );
+        }
+    }
+
+    function removePause(
+        uint256[] storage pauses,
+        uint256 _dateIn,
+        uint256 _dateOut
+    ) private {
+        bool find = false;
+
+        for (uint256 i = 0; i < (pauses.length - 1) && !find; i++) {
+            if (pauses[i] == _dateIn && pauses[i + 1] == _dateOut) {
+                find = true;
+                removeElement(pauses, i);
+                removeElement(pauses, i);
+            }
+        }
+        require(find, "COD3");
+    }
+
+    function removeElement(uint256[] storage array, uint256 index) private {
+        require((index < array.length) && (index >= 0), "COD4");
+
+        for (uint256 i = index; i < array.length - 1; i++) {
+            array[i] = array[i + 1];
+        }
+        array.pop();
+    }
 }
 
 // Error String
 /*  0x0 -> This function cannot be called at this stage.
  ** COD1 -> Pauses array must be even
  ** COD2 -> Excedido el numero maximo de pausas registradas (6/2 = 3)
+ ** COD3 -> pause.dateIn or pause.DateOut not exist
+ ** COD4 -> Invalid index, in removeElement operation
  */
