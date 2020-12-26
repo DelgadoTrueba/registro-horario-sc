@@ -91,10 +91,19 @@ contract WorkdayRecord {
     ) external {
         require(_dateRegister != 0, "COD7");
 
-        if (_dateIn != 0) addDateIn(_dateRegister, _dateIn);
+        if (_dateIn != 0) {
+            if (workDayRecord[_dateRegister].dateIn == 0) addDateIn(_dateRegister, _dateIn);
+            else changeDateIn(_dateRegister, _dateIn);
+        }
+
         if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
         if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
-        if (_dateOut != 0) addDateOut(_dateRegister, _dateOut);
+
+        if (_dateOut != 0) {
+            if (workDayRecord[_dateRegister].dateOut == 0) addDateOut(_dateRegister, _dateOut);
+            else changeDateOut(_dateRegister, _dateOut);
+        }
+
         if (bytes(_comment).length != 0) addComment(_dateRegister, _comment);
 
         emitWorkdayRecord(_dateRegister);
@@ -112,7 +121,7 @@ contract WorkdayRecord {
     }
 
     function addDateIn(uint256 dateRegister, uint256 _dateIn) public atState(dateRegister, State.UNREGISTERED) transitionTo(dateRegister, State.UNCOMPLETED) {
-        dateIn(
+        setDateIn(
             dateRegister,
             /*NEW*/
             true,
@@ -125,7 +134,7 @@ contract WorkdayRecord {
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        dateIn(
+        setDateIn(
             dateRegister,
             /*MODIFIED*/
             false,
@@ -133,7 +142,7 @@ contract WorkdayRecord {
         );
     }
 
-    function dateIn(
+    function setDateIn(
         uint256 dateRegister,
         bool action,
         uint256 _dateIn
@@ -144,7 +153,7 @@ contract WorkdayRecord {
     }
 
     function addDateOut(uint256 dateRegister, uint256 _dateOut) public atState(dateRegister, State.UNCOMPLETED) transitionTo(dateRegister, State.COMPLETED) {
-        dateOut(
+        setDateOut(
             dateRegister,
             /*NEW*/
             true,
@@ -157,7 +166,7 @@ contract WorkdayRecord {
         atLeast(dateRegister, State.COMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        dateOut(
+        setDateOut(
             dateRegister,
             /*MODIFED*/
             false,
@@ -165,7 +174,7 @@ contract WorkdayRecord {
         );
     }
 
-    function dateOut(
+    function setDateOut(
         uint256 dateRegister,
         bool action,
         uint256 _dateOut
