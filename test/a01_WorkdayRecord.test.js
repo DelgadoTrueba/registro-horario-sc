@@ -24,7 +24,13 @@ contract("WorkdayRecord Contract:", (accounts) => {
         assert.equal(callResul.dateIn.eq(dateIn), true, `dateIn must be ${dateIn.toString()}`);
         assert.equal(callResul.dateOut.eq(dateOut), true, `dateOut must be ${dateOut.toString()}`);
 
-        assert.equal(callResul.pauses.length, 0, `pauses must be empty`);
+        if(pauses){
+            callResul.pauses.forEach( (pause, i) => {
+                assert.equal(pause.eq(pauses[i]), true, `pause ${i} must be ${pauses[i].toString}`) 
+            });
+        }else{
+            assert.equal(callResul.pauses.length, 0, `pauses must be empty`)
+        }
         
         if(comment){
             assert.equal(callResul.comment, comment, `comment must be ${comment}`);
@@ -63,6 +69,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
             await expectRevert.unspecified(
                 instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment)
             );
+        })
+
+        it('should not be possible to add a pause', async () => {
+            await expectRevert.unspecified(
+                instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses)
+            )
         })
     
         it("should be possible to add an initial dateIn in a day's record", async () => {
@@ -140,8 +152,19 @@ contract("WorkdayRecord Contract:", (accounts) => {
             });
         })
 
+        it('should be possible to add a pause', async () => {
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.ADD, 
+                dateIn: WORKDAY_EXAMPLE.pauses[0],
+                dateOut: WORKDAY_EXAMPLE.pauses[1]
+             });
+        })
+
         it('should be posible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
             await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
@@ -149,7 +172,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 STATES.COMPLETED, 
                 WORKDAY_EXAMPLE.OTHERS.dateIn, 
                 WORKDAY_EXAMPLE.dateOut, 
-                null, 
+                WORKDAY_EXAMPLE.pauses, 
                 null
             );
         })
@@ -181,6 +204,23 @@ contract("WorkdayRecord Contract:", (accounts) => {
             );
         })
 
+        it('should not be possible to add more than three pause', async () => {
+            instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause1);
+            instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause2);
+            instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause3);
+            await expectRevert.unspecified(
+                instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause4),
+                'COD2'
+            )
+        })
+
+        it('should not be possible to add a pause with odd length', async () => {
+            await expectRevert.unspecified(
+                instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pauseOddLength),
+                'COD2'
+            )
+        })
+
         it("should be possible to change dateIn in a day's record", async () => {
             let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
@@ -209,16 +249,32 @@ contract("WorkdayRecord Contract:", (accounts) => {
             });
         })
 
+        it('should be possible to add a pause', async () => {
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.ADD, 
+                dateIn: WORKDAY_EXAMPLE.pauses[0],
+                dateOut: WORKDAY_EXAMPLE.pauses[1]
+             });
+
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.MODIFIED
+            });
+        })
+
         it('should be possible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
             await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
                 STATES.MODIFIED, 
                 WORKDAY_EXAMPLE.OTHERS.dateIn, 
                 WORKDAY_EXAMPLE.OTHERS.dateOut, 
-                null, 
+                WORKDAY_EXAMPLE.pauses, 
                 null
             );
         })
@@ -269,17 +325,28 @@ contract("WorkdayRecord Contract:", (accounts) => {
            await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
         })
 
+        it('should be possible to add a pause', async () => {
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.ADD, 
+                dateIn: WORKDAY_EXAMPLE.pauses[0],
+                dateOut: WORKDAY_EXAMPLE.pauses[1]
+             });
+        })
+
         it('should be possible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
             await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
             await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
                 STATES.MODIFIED, 
                 WORKDAY_EXAMPLE.OTHERS.dateIn, 
                 WORKDAY_EXAMPLE.OTHERS.dateOut, 
-                null, 
+                WORKDAY_EXAMPLE.pauses, 
                 WORKDAY_EXAMPLE.comment
             );
         })

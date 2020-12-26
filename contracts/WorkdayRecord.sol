@@ -93,9 +93,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         atState(dateRegister, State.UNREGISTERED)
         transitionTo(dateRegister, State.UNCOMPLETED)
     {
-        workDayRecord[dateRegister].dateIn = _dateIn;
-
-        emit DateInEvent(
+        dateIn(
             dateRegister,
             /*NEW*/
             true,
@@ -109,14 +107,22 @@ contract WorkdayRecord is ITWorkdayRecord {
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        workDayRecord[dateRegister].dateIn = _dateIn;
-
-        emit DateInEvent(
+        dateIn(
             dateRegister,
             /*MODIFIED*/
             false,
             _dateIn
         );
+    }
+
+    function dateIn(
+        uint256 dateRegister,
+        bool action,
+        uint256 _dateIn
+    ) private {
+        workDayRecord[dateRegister].dateIn = _dateIn;
+
+        emit DateInEvent(dateRegister, action, _dateIn);
     }
 
     function addDateOut(uint256 dateRegister, uint256 _dateOut)
@@ -125,8 +131,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         atState(dateRegister, State.UNCOMPLETED)
         transitionTo(dateRegister, State.COMPLETED)
     {
-        workDayRecord[dateRegister].dateOut = _dateOut;
-        emit DateOutEvent(
+        dateOut(
             dateRegister,
             /*NEW*/
             true,
@@ -140,8 +145,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         atLeast(dateRegister, State.COMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        workDayRecord[dateRegister].dateOut = _dateOut;
-        emit DateOutEvent(
+        dateOut(
             dateRegister,
             /*MODIFED*/
             false,
@@ -149,12 +153,52 @@ contract WorkdayRecord is ITWorkdayRecord {
         );
     }
 
+    function dateOut(
+        uint256 dateRegister,
+        bool action,
+        uint256 _dateOut
+    ) private {
+        workDayRecord[dateRegister].dateOut = _dateOut;
+
+        emit DateOutEvent(dateRegister, action, _dateOut);
+    }
+
     function addComment(uint256 dateRegister, string calldata _comment) external override atState(dateRegister, State.MODIFIED) {
         workDayRecord[dateRegister].comment = _comment;
+    }
+
+    function addPauses(uint256 dateRegister, uint256[] calldata _pauses)
+        external
+        override
+        atLeast(dateRegister, State.UNCOMPLETED)
+        transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
+    {
+        require(_pauses.length % 2 == 0, "COD1");
+        for (uint256 i = 0; i < _pauses.length; i = i + 2) {
+            addPause(dateRegister, _pauses[i], _pauses[i + 1]);
+        }
+    }
+
+    function addPause(
+        uint256 dateRegister,
+        uint256 _dateIn,
+        uint256 _dateOut
+    ) private {
+        require(workDayRecord[dateRegister].pauses.length < 6, "COD2");
+        workDayRecord[dateRegister].pauses.push(_dateIn);
+        workDayRecord[dateRegister].pauses.push(_dateOut);
+        emit PauseEvent(
+            dateRegister,
+            /*ADD*/
+            true,
+            _dateIn,
+            _dateOut
+        );
     }
 }
 
 // Error String
 /*  0x0 -> This function cannot be called at this stage.
- **
+ ** COD1 -> Pauses array must be even
+ ** COD2 -> Excedido el numero maximo de pausas registradas (6/2 = 3)
  */
