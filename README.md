@@ -22,7 +22,7 @@
 ### Entorno Ganache
 
 ```bash
-npx ganache-cli --host 0.0.0.0 -p 9545
+npx ganache-cli --host 0.0.0.0 -p 8545
 ```
 
 ```bash
