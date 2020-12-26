@@ -21,14 +21,26 @@ module.exports = Object.freeze({
         dateIn: new BN( toTimeStamp('22-12-2020', '08:00') ),
         dateOut: new BN( toTimeStamp('22-11-2020', '17:15') ),
         comment: 'Comentario de Ejemlo',
-        pauses: [toTimeStamp('22-11-2020', '14:30'), toTimeStamp('22-11-2020', '15:30')]
-                .map(timeStamp => new BN(timeStamp)),
+        pauses: [
+            toTimeStamp('22-11-2020', '15:00'), 
+            toTimeStamp('22-11-2020', '15:30')
+        ].map(timeStamp => new BN(timeStamp)),
+        addPauses: [
+            toTimeStamp('22-11-2020', '14:00'), 
+            toTimeStamp('22-11-2020', '14:30'),
+            toTimeStamp('22-11-2020', '15:00'), 
+            toTimeStamp('22-11-2020', '15:30')
+        ].map(timeStamp => new BN(timeStamp)),
+        removePauses: [
+            toTimeStamp('22-11-2020', '14:00'), 
+            toTimeStamp('22-11-2020', '14:30')
+        ].map(timeStamp => new BN(timeStamp)),
         OTHERS: {
             dateIn: new BN( toTimeStamp('22-12-2020', '08:45') ),
             dateOut: new BN( toTimeStamp('22-11-2020', '18:00') ),
-            pause1: [toTimeStamp('22-11-2020', '14:00'), toTimeStamp('22-11-2020', '14:30')]
+            pause1: [toTimeStamp('22-11-2020', '13:00'), toTimeStamp('22-11-2020', '13:30')]
                         .map(timeStamp => new BN(timeStamp)),
-            pause2: [toTimeStamp('22-11-2020', '14:30'), toTimeStamp('22-11-2020', '15:00')]
+            pause2: [toTimeStamp('22-11-2020', '14:00'), toTimeStamp('22-11-2020', '14:30')]
                         .map(timeStamp => new BN(timeStamp)),
             pause3: [toTimeStamp('22-11-2020', '15:00'), toTimeStamp('22-11-2020', '15:30')]
                         .map(timeStamp => new BN(timeStamp)),

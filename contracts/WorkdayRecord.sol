@@ -202,7 +202,9 @@ contract WorkdayRecord is ITWorkdayRecord {
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
+        require(workDayRecord[dateRegister].pauses.length > 0, "COD6");
         require(_pauses.length % 2 == 0, "COD1");
+        require(workDayRecord[dateRegister].pauses.length >= _pauses.length, "COD5");
         for (uint256 i = 0; i < _pauses.length; i = i + 2) {
             uint256[] storage pauses = workDayRecord[dateRegister].pauses;
             removePause(pauses, _pauses[i], _pauses[i + 1]);
@@ -249,4 +251,6 @@ contract WorkdayRecord is ITWorkdayRecord {
  ** COD2 -> Excedido el numero maximo de pausas registradas (6/2 = 3)
  ** COD3 -> pause.dateIn or pause.DateOut not exist
  ** COD4 -> Invalid index, in removeElement operation
+ ** COD5 -> REMOVE ARRAY TO LONGH
+ ** COD6 -> pauses array is empty
  */

@@ -73,7 +73,15 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         it('should not be possible to add a pause', async () => {
             await expectRevert.unspecified(
-                instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses)
+                instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses),
+                'COD0'
+            )
+        })
+
+        it('should not be possible to remove a pause', async () => {
+            await expectRevert.unspecified(
+                instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses),
+                'COD0'
             )
         })
     
@@ -153,18 +161,31 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be possible to add a pause', async () => {
-            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
             expectEvent(txReceipt, 'PauseEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
-                dateIn: WORKDAY_EXAMPLE.pauses[0],
-                dateOut: WORKDAY_EXAMPLE.pauses[1]
+                dateIn: WORKDAY_EXAMPLE.addPauses[0],
+                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+             });
+        })
+
+        it('should be possible to remove a pause', async () => {
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            let txReceipt = await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
+
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.REMOVE, 
+                dateIn: WORKDAY_EXAMPLE.removePauses[0],
+                dateOut: WORKDAY_EXAMPLE.removePauses[1]
              });
         })
 
         it('should be posible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
             await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
@@ -221,6 +242,40 @@ contract("WorkdayRecord Contract:", (accounts) => {
             )
         })
 
+        it('should not be possible to remove a pause before add a pause', async () => {
+            await expectRevert.unspecified(
+                instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses),
+                'COD6'
+            );
+        })
+
+        it('should not be possible to remove a pause with odd length', async () => {
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            await expectRevert.unspecified(
+                instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pauseOddLength),
+                'COD1'
+            )
+        })
+
+        it('should not be possible to remove more pauses than exists', async () => {
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause1);
+            await expectRevert.unspecified(
+                instance.removePauses(WORKDAY_EXAMPLE.dateRegister,[
+                    ...WORKDAY_EXAMPLE.OTHERS.pause1,
+                    ...WORKDAY_EXAMPLE.OTHERS.pause2
+                ]),
+                'COD5'
+            )
+        })
+
+        it('should not be possible to remove a pause that dont exist', async () => {
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.pause1);
+            await expectRevert.unspecified(
+                instance.removePauses(WORKDAY_EXAMPLE.dateRegister,WORKDAY_EXAMPLE.OTHERS.pause2),
+                'COD3'
+            )
+        })
+
         it("should be possible to change dateIn in a day's record", async () => {
             let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
@@ -250,12 +305,32 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be possible to add a pause', async () => {
-            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
             expectEvent(txReceipt, 'PauseEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
-                dateIn: WORKDAY_EXAMPLE.pauses[0],
-                dateOut: WORKDAY_EXAMPLE.pauses[1]
+                dateIn: WORKDAY_EXAMPLE.addPauses[0],
+                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+             });
+
+            expectEvent(txReceipt, 'WorkdayRecordState', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                state: STATES.MODIFIED
+            });
+        })
+
+        it('should be possible to remove a pause', async () => {
+            instance = await WorkdayRecordContract.new();
+            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            
+            let txReceipt = await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.REMOVE, 
+                dateIn: WORKDAY_EXAMPLE.removePauses[0],
+                dateOut: WORKDAY_EXAMPLE.removePauses[1]
              });
 
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -267,7 +342,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
         it('should be possible to get workdayInfo', async () => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
             await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses)
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
@@ -326,12 +402,24 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be possible to add a pause', async () => {
-            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            let txReceipt = await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
             expectEvent(txReceipt, 'PauseEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
-                dateIn: WORKDAY_EXAMPLE.pauses[0],
-                dateOut: WORKDAY_EXAMPLE.pauses[1]
+                dateIn: WORKDAY_EXAMPLE.addPauses[0],
+                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+             });
+        })
+
+        it('it should be possible to remove a pause', async () => {
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            let txReceipt = await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
+
+            expectEvent(txReceipt, 'PauseEvent', {
+                dateRegister: WORKDAY_EXAMPLE.dateRegister, 
+                action: CONST.REMOVE, 
+                dateIn: WORKDAY_EXAMPLE.removePauses[0],
+                dateOut: WORKDAY_EXAMPLE.removePauses[1]
              });
         })
 
@@ -339,7 +427,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
             await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
             await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
             await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.pauses);
+            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
+            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
