@@ -10,8 +10,6 @@ module.exports = {
     },
     besu: {
       provider: BesuTestNet.provider,
-      host: BesuTestNet.host,
-      port: BesuTestNet.port,
       network_id: "*" 
     },
   },
@@ -20,9 +18,6 @@ module.exports = {
   mocha: {
     // timeout: 100000
     reporter: 'eth-gas-reporter',
-    reporterOptions : { 
-      url: 'http://localhost:8545'
-    }
   },
 
   compilers: {

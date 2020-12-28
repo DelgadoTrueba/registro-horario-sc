@@ -1,9 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "./interfaces/ITWorkdayRecord.sol";
+contract WorkdayRecord {
+    /* Evento a utilizar en el modal del calendario */
+    event WorkdayRecordState(uint256 indexed dateRegister, uint8 state);
 
-contract WorkdayRecord is ITWorkdayRecord {
+    /* Eventos necesario para obtener la trazabilidad del registro horario de un día
+     ** DateIn & DateOut. action = new, modified
+     ** Pauses. action => add, remove
+     */
+    event DateInEvent(uint256 indexed dateRegister, bool action, uint256 dateIn);
+    event DateOutEvent(uint256 indexed dateRegister, bool action, uint256 dateOut);
+    event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut);
+
+    /* Evento para obtener todos los registros de forma rapida
+     **
+     */
+    event WorkdayRecordEvent(uint256 indexed dateRegister, uint256 dateIn, uint256[] pauses, uint256 dateOut, string comment, uint8 state);
+
     enum State {UNREGISTERED, UNCOMPLETED, COMPLETED, MODIFIED}
 
     modifier atState(uint256 dateRegister, State state) {
@@ -50,7 +64,6 @@ contract WorkdayRecord is ITWorkdayRecord {
     function getWorkday(uint256 dateRegister)
         external
         view
-        override
         returns (
             uint256 dateIn,
             uint256 dateOut,
@@ -69,31 +82,46 @@ contract WorkdayRecord is ITWorkdayRecord {
     }
 
     function record(
-        uint256 dateRegister,
+        uint256 _dateRegister,
         uint256 _dateIn,
         uint256 _dateOut,
         uint256[] calldata _pausesAdd,
         uint256[] calldata _pausesRemove,
         string calldata _comment
-    ) external override {
-        uint256 a = dateRegister;
-        a = _dateIn;
-        a = _dateOut;
+    ) external {
+        require(_dateRegister != 0, "COD7");
 
-        uint256[] memory b = _pausesAdd;
-        b = _pausesRemove;
+        if (_dateIn != 0) {
+            if (workDayRecord[_dateRegister].dateIn == 0) addDateIn(_dateRegister, _dateIn);
+            else changeDateIn(_dateRegister, _dateIn);
+        }
 
-        string memory c = _comment;
-        c = "";
+        if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
+        if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
+
+        if (_dateOut != 0) {
+            if (workDayRecord[_dateRegister].dateOut == 0) addDateOut(_dateRegister, _dateOut);
+            else changeDateOut(_dateRegister, _dateOut);
+        }
+
+        if (bytes(_comment).length != 0) addComment(_dateRegister, _comment);
+
+        emitWorkdayRecord(_dateRegister);
     }
 
-    function addDateIn(uint256 dateRegister, uint256 _dateIn)
-        external
-        override
-        atState(dateRegister, State.UNREGISTERED)
-        transitionTo(dateRegister, State.UNCOMPLETED)
-    {
-        dateIn(
+    function emitWorkdayRecord(uint256 _dateRegister) private {
+        emit WorkdayRecordEvent(
+            _dateRegister,
+            workDayRecord[_dateRegister].dateIn,
+            workDayRecord[_dateRegister].pauses,
+            workDayRecord[_dateRegister].dateOut,
+            workDayRecord[_dateRegister].comment,
+            uint8(workDayRecord[_dateRegister].state)
+        );
+    }
+
+    function addDateIn(uint256 dateRegister, uint256 _dateIn) public atState(dateRegister, State.UNREGISTERED) transitionTo(dateRegister, State.UNCOMPLETED) {
+        setDateIn(
             dateRegister,
             /*NEW*/
             true,
@@ -102,12 +130,11 @@ contract WorkdayRecord is ITWorkdayRecord {
     }
 
     function changeDateIn(uint256 dateRegister, uint256 _dateIn)
-        external
-        override
+        public
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        dateIn(
+        setDateIn(
             dateRegister,
             /*MODIFIED*/
             false,
@@ -115,7 +142,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         );
     }
 
-    function dateIn(
+    function setDateIn(
         uint256 dateRegister,
         bool action,
         uint256 _dateIn
@@ -125,13 +152,8 @@ contract WorkdayRecord is ITWorkdayRecord {
         emit DateInEvent(dateRegister, action, _dateIn);
     }
 
-    function addDateOut(uint256 dateRegister, uint256 _dateOut)
-        external
-        override
-        atState(dateRegister, State.UNCOMPLETED)
-        transitionTo(dateRegister, State.COMPLETED)
-    {
-        dateOut(
+    function addDateOut(uint256 dateRegister, uint256 _dateOut) public atState(dateRegister, State.UNCOMPLETED) transitionTo(dateRegister, State.COMPLETED) {
+        setDateOut(
             dateRegister,
             /*NEW*/
             true,
@@ -140,12 +162,11 @@ contract WorkdayRecord is ITWorkdayRecord {
     }
 
     function changeDateOut(uint256 dateRegister, uint256 _dateOut)
-        external
-        override
+        public
         atLeast(dateRegister, State.COMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        dateOut(
+        setDateOut(
             dateRegister,
             /*MODIFED*/
             false,
@@ -153,7 +174,7 @@ contract WorkdayRecord is ITWorkdayRecord {
         );
     }
 
-    function dateOut(
+    function setDateOut(
         uint256 dateRegister,
         bool action,
         uint256 _dateOut
@@ -163,13 +184,12 @@ contract WorkdayRecord is ITWorkdayRecord {
         emit DateOutEvent(dateRegister, action, _dateOut);
     }
 
-    function addComment(uint256 dateRegister, string calldata _comment) external override atState(dateRegister, State.MODIFIED) {
+    function addComment(uint256 dateRegister, string memory _comment) public atState(dateRegister, State.MODIFIED) {
         workDayRecord[dateRegister].comment = _comment;
     }
 
-    function addPauses(uint256 dateRegister, uint256[] calldata _pauses)
-        external
-        override
+    function addPauses(uint256 dateRegister, uint256[] memory _pauses)
+        public
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
@@ -197,8 +217,7 @@ contract WorkdayRecord is ITWorkdayRecord {
     }
 
     function removePauses(uint256 dateRegister, uint256[] memory _pauses)
-        external
-        override
+        public
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
@@ -253,4 +272,5 @@ contract WorkdayRecord is ITWorkdayRecord {
  ** COD4 -> Invalid index, in removeElement operation
  ** COD5 -> REMOVE ARRAY TO LONGH
  ** COD6 -> pauses array is empty
+ ** COD7 -> Invalid dateRegister
  */

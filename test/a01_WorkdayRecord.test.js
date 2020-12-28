@@ -102,7 +102,14 @@ contract("WorkdayRecord Contract:", (accounts) => {
         it("should be possible to get workdayInfo", async () => {
             let txReceipt, callResul;
             
-            txReceipt = await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            txReceipt = await instance.record(
+                WORKDAY_EXAMPLE.dateRegister, 
+                WORKDAY_EXAMPLE.dateIn,
+                ZERO,
+                [],
+                [],
+                ""
+            );
     
             callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, STATES.UNCOMPLETED, WORKDAY_EXAMPLE.dateIn, ZERO, null, null);
@@ -183,10 +190,14 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be posible to get workdayInfo', async () => {
-            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
-            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
-            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
+            await instance.record(
+                WORKDAY_EXAMPLE.dateRegister,
+                WORKDAY_EXAMPLE.OTHERS.dateIn,
+                WORKDAY_EXAMPLE.dateOut,
+                WORKDAY_EXAMPLE.addPauses,
+                WORKDAY_EXAMPLE.removePauses,
+                ""
+            );
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
@@ -340,10 +351,14 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be possible to get workdayInfo', async () => {
-            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
-            await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
-            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses)
+            await instance.record(
+                WORKDAY_EXAMPLE.dateRegister, 
+                WORKDAY_EXAMPLE.OTHERS.dateIn,
+                WORKDAY_EXAMPLE.OTHERS.dateOut,
+                WORKDAY_EXAMPLE.addPauses,
+                WORKDAY_EXAMPLE.removePauses,
+                ""
+            );
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
@@ -424,11 +439,14 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it('should be possible to get workdayInfo', async () => {
-            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
-            await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
-            await instance.addComment(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.comment);
-            await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
-            await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
+            await instance.record(
+                WORKDAY_EXAMPLE.dateRegister, 
+                WORKDAY_EXAMPLE.OTHERS.dateIn,
+                WORKDAY_EXAMPLE.OTHERS.dateOut,
+                WORKDAY_EXAMPLE.addPauses,
+                WORKDAY_EXAMPLE.removePauses,
+                WORKDAY_EXAMPLE.comment
+            );
 
             let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister);
             checkWorkdayInfo(callResul, 
