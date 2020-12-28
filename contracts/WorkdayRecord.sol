@@ -10,7 +10,7 @@ contract WorkdayRecord {
      ** Pauses. action => add, remove
      */
     event DateInEvent(uint256 indexed dateRegister, uint256 dateIn);
-    event DateOutEvent(uint256 indexed dateRegister, bool action, uint256 dateOut);
+    event DateOutEvent(uint256 indexed dateRegister, uint256 dateOut);
     event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut);
 
     /* Evento para obtener todos los registros de forma rapida
@@ -28,11 +28,6 @@ contract WorkdayRecord {
     modifier atLeast(uint256 dateRegister, State state) {
         require(workDayRecord[dateRegister].state >= state, "COD0");
         _;
-    }
-
-    modifier transitionTo(uint256 dateRegister, State state) {
-        _;
-        advanceState(dateRegister, state);
     }
 
     modifier transitionIfTo(
@@ -91,15 +86,10 @@ contract WorkdayRecord {
     ) external {
         require(_dateRegister != 0, "COD7");
 
-        setDateIn(_dateRegister, _dateIn);
-
+        if (_dateIn != 0) setDateIn(_dateRegister, _dateIn);
         if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
         if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
-
-        if (_dateOut != 0) {
-            if (workDayRecord[_dateRegister].dateOut == 0) addDateOut(_dateRegister, _dateOut);
-            else changeDateOut(_dateRegister, _dateOut);
-        }
+        if (_dateOut != 0) setDateOut(_dateRegister, _dateOut);
 
         if (bytes(_comment).length != 0) addComment(_dateRegister, _comment);
 
@@ -127,36 +117,15 @@ contract WorkdayRecord {
         emit DateInEvent(dateRegister, _dateIn);
     }
 
-    function addDateOut(uint256 dateRegister, uint256 _dateOut) public atState(dateRegister, State.UNCOMPLETED) transitionTo(dateRegister, State.COMPLETED) {
-        setDateOut(
-            dateRegister,
-            /*NEW*/
-            true,
-            _dateOut
-        );
-    }
-
-    function changeDateOut(uint256 dateRegister, uint256 _dateOut)
+    function setDateOut(uint256 dateRegister, uint256 _dateOut)
         public
-        atLeast(dateRegister, State.COMPLETED)
+        atLeast(dateRegister, State.UNCOMPLETED)
+        transitionIfTo(dateRegister, State.UNCOMPLETED, State.COMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        setDateOut(
-            dateRegister,
-            /*MODIFED*/
-            false,
-            _dateOut
-        );
-    }
-
-    function setDateOut(
-        uint256 dateRegister,
-        bool action,
-        uint256 _dateOut
-    ) private {
         workDayRecord[dateRegister].dateOut = _dateOut;
 
-        emit DateOutEvent(dateRegister, action, _dateOut);
+        emit DateOutEvent(dateRegister, _dateOut);
     }
 
     function addComment(uint256 dateRegister, string memory _comment) public atState(dateRegister, State.MODIFIED) {

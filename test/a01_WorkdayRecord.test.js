@@ -48,13 +48,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         it("should not be possible to add dateOut in a day's record", async () => {
             await expectRevert.unspecified(
-                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
-            );
-        })
-
-        it("should not be possible to change dateOut in a day's record", async () => {
-            await expectRevert.unspecified(
-                instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+                instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
             );
         })
 
@@ -115,12 +109,6 @@ contract("WorkdayRecord Contract:", (accounts) => {
             await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
         });
         
-        it("should not be possible to change dateOut before add one in a day´s record", async () => {
-            await expectRevert.unspecified(
-                instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut),
-                "COD0"
-            );
-        })
 
         it("should not be possible to add comment", async () => {
             await expectRevert.unspecified(
@@ -138,11 +126,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to add dateOut in a day's record", async () => { 
-            let txReceipt = await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
+            let txReceipt = await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut);
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.NEW, 
                 dateOut: WORKDAY_EXAMPLE.dateOut
              });
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -199,14 +186,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
         beforeEach(async() => {
             instance = await WorkdayRecordContract.new();
             await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
-            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
         });
-
-        it("should not be posible to add initial dateOut", async () => {
-            await expectRevert.unspecified(
-                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
-            );
-        })
 
         it("should not be possible to add comment", async () => {
             await expectRevert.unspecified(
@@ -279,11 +260,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to change dateOut in a day's record", async () => {
-            let txReceipt = await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+            let txReceipt = await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.MODIFIED, 
                 dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -311,7 +291,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
             instance = await WorkdayRecordContract.new();
             await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
             await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
-            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
             
             let txReceipt = await instance.removePauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.removePauses);
             expectEvent(txReceipt, 'PauseEvent', {
@@ -353,15 +333,9 @@ contract("WorkdayRecord Contract:", (accounts) => {
         beforeEach(async() => {
             instance = await WorkdayRecordContract.new();
             await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
-            await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
+            await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
             await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
         });
-
-        it("should not be posible to add initial dateOut", async () => {
-            await expectRevert.unspecified(
-                instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
-            );
-        })
 
         it("should be possible to change dateIn in a day's record", async () => {
             let txReceipt = await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
@@ -373,11 +347,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to change dateOut in a day's record", async () => {
-            let txReceipt = await instance.changeDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
+            let txReceipt = await instance.setDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateOut);
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.MODIFIED, 
                 dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
             });
         })
