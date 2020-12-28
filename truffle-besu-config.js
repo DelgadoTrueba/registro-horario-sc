@@ -16,21 +16,26 @@
 ** Balance 0xad78ebc5ac6200000 (2785365088392105618523029504 in decimal)
 */
 
-const PrivateKeyProvider = require("@truffle/hdwallet-provider");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const HOST = '127.0.0.1';
 const PORT = '8545'
+const URL =  `http://${HOST}:${PORT}`
 
-const privateKeyBesuProvider = () => new PrivateKeyProvider(
-    [
-    '0x8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63',
-    '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-    '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f'
-    ],
-    `http://${HOST}:${PORT}`,
-    0,
-    3
-)
+const privateKeyBesuProvider = () => {
+    let provider = new HDWalletProvider({
+        privateKeys: [
+        '0x8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63',
+        '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+        '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f'
+        ],
+        providerOrUrl: URL,
+        numberOfAddresses: 3
+    })
+    provider.host = URL;
+    
+    return provider;
+}
 
 module.exports = {
     provider: privateKeyBesuProvider,
