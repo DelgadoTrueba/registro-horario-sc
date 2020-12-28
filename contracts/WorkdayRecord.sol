@@ -9,7 +9,7 @@ contract WorkdayRecord {
      ** DateIn & DateOut. action = new, modified
      ** Pauses. action => add, remove
      */
-    event DateInEvent(uint256 indexed dateRegister, bool action, uint256 dateIn);
+    event DateInEvent(uint256 indexed dateRegister, uint256 dateIn);
     event DateOutEvent(uint256 indexed dateRegister, bool action, uint256 dateOut);
     event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut);
 
@@ -91,10 +91,7 @@ contract WorkdayRecord {
     ) external {
         require(_dateRegister != 0, "COD7");
 
-        if (_dateIn != 0) {
-            if (workDayRecord[_dateRegister].dateIn == 0) addDateIn(_dateRegister, _dateIn);
-            else changeDateIn(_dateRegister, _dateIn);
-        }
+        setDateIn(_dateRegister, _dateIn);
 
         if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
         if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
@@ -120,36 +117,14 @@ contract WorkdayRecord {
         );
     }
 
-    function addDateIn(uint256 dateRegister, uint256 _dateIn) public atState(dateRegister, State.UNREGISTERED) transitionTo(dateRegister, State.UNCOMPLETED) {
-        setDateIn(
-            dateRegister,
-            /*NEW*/
-            true,
-            _dateIn
-        );
-    }
-
-    function changeDateIn(uint256 dateRegister, uint256 _dateIn)
+    function setDateIn(uint256 dateRegister, uint256 _dateIn)
         public
-        atLeast(dateRegister, State.UNCOMPLETED)
+        transitionIfTo(dateRegister, State.UNREGISTERED, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        setDateIn(
-            dateRegister,
-            /*MODIFIED*/
-            false,
-            _dateIn
-        );
-    }
-
-    function setDateIn(
-        uint256 dateRegister,
-        bool action,
-        uint256 _dateIn
-    ) private {
         workDayRecord[dateRegister].dateIn = _dateIn;
 
-        emit DateInEvent(dateRegister, action, _dateIn);
+        emit DateInEvent(dateRegister, _dateIn);
     }
 
     function addDateOut(uint256 dateRegister, uint256 _dateOut) public atState(dateRegister, State.UNCOMPLETED) transitionTo(dateRegister, State.COMPLETED) {

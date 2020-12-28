@@ -45,13 +45,6 @@ contract("WorkdayRecord Contract:", (accounts) => {
         beforeEach(async function() {
             instance = await WorkdayRecordContract.new();
         });
-        
-        it("should not be possible to change an dateIn before add one in a day's record", async () => {      
-            await expectRevert.unspecified(
-                instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn),
-                "COD0"
-            );
-        })
 
         it("should not be possible to add dateOut in a day's record", async () => {
             await expectRevert.unspecified(
@@ -86,11 +79,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
     
         it("should be possible to add an initial dateIn in a day's record", async () => {
-            let txReceipt = await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            let txReceipt = await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.NEW, 
                 dateIn: WORKDAY_EXAMPLE.dateIn 
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -120,15 +112,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         beforeEach(async function() {
             instance = await WorkdayRecordContract.new();
-            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
         });
-
-        it("should not be possible to add an initial dateIn in a day's record", async () => {         
-            await expectRevert.unspecified(
-                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn),
-                "COD0"
-            );
-        })
         
         it("should not be possible to change dateOut before add one in a day´s record", async () => {
             await expectRevert.unspecified(
@@ -144,11 +129,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to change dateIn in a day's record", async () => {     
-            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            let txReceipt = await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.MODIFIED, 
                 dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
             });
         })
@@ -214,15 +198,9 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         beforeEach(async() => {
             instance = await WorkdayRecordContract.new();
-            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
             await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
         });
-
-        it("should not be posible to add initial dateIn", async () => {
-            await expectRevert.unspecified(
-                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
-            );
-        })
 
         it("should not be posible to add initial dateOut", async () => {
             await expectRevert.unspecified(
@@ -288,11 +266,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to change dateIn in a day's record", async () => {
-            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            let txReceipt = await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.MODIFIED, 
                 dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -332,7 +309,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         it('should be possible to remove a pause', async () => {
             instance = await WorkdayRecordContract.new();
-            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
             await instance.addPauses(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.addPauses);
             await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
             
@@ -375,16 +352,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
         beforeEach(async() => {
             instance = await WorkdayRecordContract.new();
-            await instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
+            await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn);
             await instance.addDateOut(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateOut)
-            await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
+            await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
         });
-
-        it("should not be posible to add initial dateIn", async () => {
-            await expectRevert.unspecified(
-                instance.addDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.dateIn)
-            );
-        })
 
         it("should not be posible to add initial dateOut", async () => {
             await expectRevert.unspecified(
@@ -393,11 +364,10 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
 
         it("should be possible to change dateIn in a day's record", async () => {
-            let txReceipt = await instance.changeDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
+            let txReceipt = await instance.setDateIn(WORKDAY_EXAMPLE.dateRegister, WORKDAY_EXAMPLE.OTHERS.dateIn);
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                action: CONST.MODIFIED, 
                 dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
             });
         })
