@@ -49,9 +49,9 @@ contract WorkdayRecord {
     struct Workday {
         uint256 dateIn;
         uint256 dateOut;
-        string comment;
         uint256[] pauses;
         State state;
+        string comment;
     }
     // dateRegister => struct
     mapping(uint256 => Workday) private workDayRecord;
@@ -108,7 +108,7 @@ contract WorkdayRecord {
     }
 
     function setDateIn(uint256 dateRegister, uint256 _dateIn)
-        public
+        private
         transitionIfTo(dateRegister, State.UNREGISTERED, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
@@ -118,7 +118,7 @@ contract WorkdayRecord {
     }
 
     function setDateOut(uint256 dateRegister, uint256 _dateOut)
-        public
+        private
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.UNCOMPLETED, State.COMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
@@ -128,12 +128,12 @@ contract WorkdayRecord {
         emit DateOutEvent(dateRegister, _dateOut);
     }
 
-    function addComment(uint256 dateRegister, string memory _comment) public atState(dateRegister, State.MODIFIED) {
+    function addComment(uint256 dateRegister, string memory _comment) private atState(dateRegister, State.MODIFIED) {
         workDayRecord[dateRegister].comment = _comment;
     }
 
     function addPauses(uint256 dateRegister, uint256[] memory _pauses)
-        public
+        private
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
@@ -161,7 +161,7 @@ contract WorkdayRecord {
     }
 
     function removePauses(uint256 dateRegister, uint256[] memory _pauses)
-        public
+        private
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
