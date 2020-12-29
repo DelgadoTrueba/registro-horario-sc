@@ -253,7 +253,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
              });
         })
 
-        it.only('should be posible to get workdayInfo', async () => {
+        it('should be posible to get workdayInfo', async () => {
             let txReceipt = await instance.record(
                 WORKDAY_EXAMPLE.dateRegister,
                 WORKDAY_EXAMPLE.OTHERS.dateIn,
@@ -715,5 +715,50 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 WORKDAY_EXAMPLE.comment
             );
         })
+    })
+
+    describe.only('ACCESS CONTROL', () => {
+        const [owner, other] = accounts;
+
+        beforeEach(async () => {
+            instance = await WorkdayRecordContract.new({from: owner});
+        });
+
+        it('should not be posible to add workdayInfo if transaction doesn´t come from owner', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateOut,
+                    WORKDAY_EXAMPLE.pauses,
+                    [],
+                    WORKDAY_EXAMPLE.comment, 
+                    {from: other}
+                ),
+                "Ownable: caller is not the owner"
+            )
+        });
+
+        it('should be posible to get workdayInfo by other person than owner', async () => {
+            await instance.record(
+                WORKDAY_EXAMPLE.dateRegister, 
+                WORKDAY_EXAMPLE.dateIn,
+                WORKDAY_EXAMPLE.dateOut,
+                WORKDAY_EXAMPLE.pauses,
+                [],
+                "", 
+                {from: owner}
+            );
+
+            let callResul = await instance.getWorkday(WORKDAY_EXAMPLE.dateRegister, {from: other});
+            checkWorkdayInfo(callResul, 
+                STATES.COMPLETED, 
+                WORKDAY_EXAMPLE.dateIn, 
+                WORKDAY_EXAMPLE.dateOut, 
+                WORKDAY_EXAMPLE.pauses, 
+                null
+            );
+        });
+
     })
 });
