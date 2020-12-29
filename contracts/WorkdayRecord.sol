@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-contract WorkdayRecord {
+import "./Ownable.sol";
+
+contract WorkdayRecord is Ownable {
     /* Evento a utilizar en el modal del calendario */
     event WorkdayRecordState(uint256 indexed dateRegister, uint8 state);
 
@@ -83,7 +85,7 @@ contract WorkdayRecord {
         uint256[] calldata _pausesAdd,
         uint256[] calldata _pausesRemove,
         string calldata _comment
-    ) external {
+    ) external onlyOwner {
         require(_dateRegister != 0, "COD7");
 
         if (_dateIn != 0) setDateIn(_dateRegister, _dateIn);
