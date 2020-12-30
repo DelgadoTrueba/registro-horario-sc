@@ -48,6 +48,11 @@ contract WorkdayRecord is Ownable {
         emit WorkdayRecordState(dateRegister, uint8(state));
     }
 
+    modifier isDateRegisterMidnight(uint256 dateRegister) {
+        require(dateRegister % (24 hours) == 0, "COD20");
+        _;
+    }
+
     struct Workday {
         uint256 dateIn;
         uint256 dateOut;
@@ -85,7 +90,7 @@ contract WorkdayRecord is Ownable {
         uint256[] calldata _pausesAdd,
         uint256[] calldata _pausesRemove,
         string calldata _comment
-    ) external onlyOwner {
+    ) external onlyOwner isDateRegisterMidnight(_dateRegister) {
         require(_dateRegister != 0, "COD7");
 
         if (_dateIn != 0) setDateIn(_dateRegister, _dateIn);
@@ -95,6 +100,7 @@ contract WorkdayRecord is Ownable {
 
         if (bytes(_comment).length != 0) addComment(_dateRegister, _comment);
 
+        checkTimestamps(_dateRegister);
         emitWorkdayRecord(_dateRegister);
     }
 
@@ -107,6 +113,25 @@ contract WorkdayRecord is Ownable {
             workDayRecord[_dateRegister].comment,
             uint8(workDayRecord[_dateRegister].state)
         );
+    }
+
+    function checkTimestamps(uint256 _dateRegister) private view {
+        uint256[] memory aux = new uint256[](workDayRecord[_dateRegister].pauses.length + 2);
+
+        aux[0] = workDayRecord[_dateRegister].dateIn;
+        for (uint8 i = 0; i < workDayRecord[_dateRegister].pauses.length; i++) {
+            aux[i + 1] = workDayRecord[_dateRegister].pauses[i];
+        }
+        aux[aux.length - 1] = workDayRecord[_dateRegister].dateOut;
+
+        uint256 prev = 0;
+        for (uint8 j = 0; j < aux.length; j++) {
+            if (aux[j] != 0) {
+                require((aux[j] > _dateRegister) && (aux[j] < (_dateRegister + 1 days)), "COD30");
+                require(aux[j] > prev, "COD40");
+            }
+            prev = aux[j];
+        }
     }
 
     function setDateIn(uint256 dateRegister, uint256 _dateIn)
@@ -219,4 +244,7 @@ contract WorkdayRecord is Ownable {
  ** COD5 -> REMOVE ARRAY TO LONGH
  ** COD6 -> pauses array is empty
  ** COD7 -> Invalid dateRegister
+ ** COD20 -> MEDIANOCHE
+ ** COD30 -> NO MISMO DÍA
+ ** COD40 -> TIMESTAMP NO ORDENADOS
  */
