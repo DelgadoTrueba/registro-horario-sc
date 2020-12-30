@@ -854,6 +854,35 @@ contract("WorkdayRecord Contract:", (accounts) => {
             )
         });
 
+        it('should not be posible to add workdayInfo if dates timestamp are equals (1)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateIn,
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are equals (2)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateOut,
+                    [
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1,
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1
+                    ],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
         it('should not be posible to add workdayInfo if dates timestamp are not from same date (1)', async () => {
             await expectRevert.unspecified(
                 instance.record(
