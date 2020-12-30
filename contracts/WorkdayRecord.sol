@@ -193,7 +193,6 @@ contract WorkdayRecord is Ownable {
     {
         require(workDayRecord[dateRegister].pauses.length > 0, "WorkdayRecord:COD6");
         require(_pauses.length % 2 == 0, "WorkdayRecord:COD4");
-        require(workDayRecord[dateRegister].pauses.length >= _pauses.length, "WorkdayRecord:COD7");
         for (uint256 i = 0; i < _pauses.length; i = i + 2) {
             uint256[] storage pauses = workDayRecord[dateRegister].pauses;
             removePause(pauses, _pauses[i], _pauses[i + 1]);
@@ -222,11 +221,11 @@ contract WorkdayRecord is Ownable {
                 removeElement(pauses, i);
             }
         }
-        require(find, "WorkdayRecord:COD8");
+        require(find, "WorkdayRecord:COD7");
     }
 
     function removeElement(uint256[] storage array, uint256 index) private {
-        require((index < array.length) && (index >= 0), "WorkdayRecord:COD9");
+        require((index < array.length) && (index >= 0), "WorkdayRecord:COD8");
 
         for (uint256 i = index; i < array.length - 1; i++) {
             array[i] = array[i + 1];
@@ -236,14 +235,13 @@ contract WorkdayRecord is Ownable {
 }
 
 // Error String
-/*  WorkdayRecord:COD0 -> this function cannot be called at this stage
- ** WorkdayRecord:COD1 -> invalid dateRegister
- ** WorkdayRecord:COD2 -> dateIn, pauses, dateOut must be from same day
- ** WorkdayRecord:COD3 -> workday info must be sorted (dateIn < pauses < dateIn)
- ** WorkdayRecord:COD4 -> Pauses array must be even
- ** WorkdayRecord:COD5 -> exceeded the maximum number of recorded pauses (3)
- ** WorkdayRecord:COD6 -> pauses array is empty
- ** WorkdayRecord:COD7 -> remove array too long
- ** WorkdayRecord:COD8 -> pause.dateIn or pause.DateOut not exist
- ** WorkdayRecord:COD9 -> Invalid index, in removeElement operation
+/*  - WorkdayRecord:COD0 -> this function cannot be called at this stage
+ ** - WorkdayRecord:COD1 -> invalid dateRegister. DateRegister must be at midnight
+ ** - WorkdayRecord:COD2 -> dateIn, pauses, dateOut must be from same day
+ ** - WorkdayRecord:COD3 -> workday info must be sorted (dateIn < pauses < dateIn)
+ ** - WorkdayRecord:COD4 -> Pauses array must be even
+ ** - WorkdayRecord:COD5 -> exceeded the maximum number of recorded pauses (3)
+ ** - WorkdayRecord:COD6 -> pauses array is empty
+ ** - WorkdayRecord:COD7 -> pause.dateIn or pause.DateOut not exist
+ **   WorkdayRecord:COD8 -> Invalid index, in removeElement operation
  */
