@@ -13,7 +13,7 @@ abstract contract Ownable {
     }
 
     modifier onlyOwner() {
-        require(isOwner(), "Ownable: caller is not the owner");
+        require(isOwner(), "Ownable:COD0");
         _;
     }
 
@@ -21,3 +21,7 @@ abstract contract Ownable {
         return msg.sender == _owner;
     }
 }
+
+/* Error String
+ ** Ownable:COD0 -> caller is not the owner
+ */

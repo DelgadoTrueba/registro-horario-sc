@@ -5,7 +5,7 @@ const WorkdayRecordValues = require('./workdayRecord_values')
 const {
     BN,
     expectEvent,
-    expectRevert 
+    expectRevert  
 } = require('@openzeppelin/test-helpers');
 const ZERO = new BN(0);
 
@@ -48,7 +48,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         });
 
         it("should not be possible to add dateOut in a day's record", async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -56,12 +56,13 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     [],
                     ""
-                )
+                ),
+                "WorkdayRecord:COD0"
             );
         })
 
         it("should not be possible to add comment", async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -69,12 +70,13 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     [],
                     WORKDAY_EXAMPLE.comment
-                )
+                ),
+                "WorkdayRecord:COD0"
             );
         })
 
         it('should not be possible to add a pause', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -83,12 +85,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     ""
                 ),
-                'COD0'
+                'WorkdayRecord:COD0'
             )
         })
 
         it('should not be possible to remove a pause', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -97,7 +99,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.removePauses,
                     ""
                 ),
-                'COD0'
+                'WorkdayRecord:COD0'
             )
         })
     
@@ -162,7 +164,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         
 
         it("should not be possible to add comment", async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -170,7 +172,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     [],
                     WORKDAY_EXAMPLE.comment
-                )
+                ),
+                "WorkdayRecord:COD0"
             );
         })
 
@@ -304,7 +307,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         });
 
         it("should not be possible to add comment", async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -312,7 +315,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     [],
                     WORKDAY_EXAMPLE.comment
-                )
+                ),
+                "WorkdayRecord:COD0"
             );
         })
 
@@ -344,7 +348,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 ""
             )
            
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -353,12 +357,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     ""
                 ),
-                'COD2'
+                "WorkdayRecord:COD5"
             )
         })
 
         it('should not be possible to add a pause with odd length', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -367,12 +371,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     ""
                 ),
-                'COD2'
+                "WorkdayRecord:COD4"
             )
         })
 
         it('should not be possible to remove a pause before add a pause', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -381,7 +385,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.removePauses,
                     ""
                 ),
-                'COD6'
+                "WorkdayRecord:COD6"
             );
         })
 
@@ -395,7 +399,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 ""
             );
 
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -404,7 +408,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.OTHERS.pauseOddLength,
                     ""
                 ),
-                'COD1'
+                "WorkdayRecord:COD4"
             )
         })
 
@@ -417,7 +421,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 [],
                 ""
             );
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -429,7 +433,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     ],
                     ""
                 ),
-                'COD5'
+                "WorkdayRecord:COD7"
             )
         })
 
@@ -442,7 +446,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 [],
                 ""
             );
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     ZERO,
@@ -451,7 +455,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.OTHERS.pause2,
                     ""
                 ),
-                'COD3'
+                "WorkdayRecord:COD7"
             )
         })
 
@@ -739,7 +743,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         });
 
         it('should not be posible to add workdayInfo if transaction doesn´t come from owner', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -749,7 +753,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.comment, 
                     {from: other}
                 ),
-                "Ownable: caller is not the owner"
+                "Ownable:COD0"
             )
         });
 
@@ -782,7 +786,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         });
 
         it('should not be posible to add workdayInfo if dateRegisteris not at midnight', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.OTHERS.invalidDateRegister, 
                     ZERO,
@@ -791,12 +795,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD20"
+                "WorkdayRecord:COD1"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not sorted (1)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateOut,
@@ -805,26 +809,26 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not sorted (2)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
                     WORKDAY_EXAMPLE.OTHERS.pause1[0],
-                    [WORKDAY_EXAMPLE.OTHERS.dateOut],
+                    WORKDAY_EXAMPLE.OTHERS.pause2,
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not sorted (3)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -836,12 +840,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not sorted (4)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -850,12 +854,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are equals (1)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -864,12 +868,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are equals (2)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -881,12 +885,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD40"
+                "WorkdayRecord:COD3"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not from same date (1)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE_2.dateIn,
@@ -895,12 +899,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD30"
+                "WorkdayRecord:COD2"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not from same date (2)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -909,12 +913,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD30"
+                "WorkdayRecord:COD2"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not from same date (3)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -923,12 +927,12 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD30"
+                "WorkdayRecord:COD2"
             )
         });
 
         it('should not be posible to add workdayInfo if dates timestamp are not from same date (4)', async () => {
-            await expectRevert.unspecified(
+            await expectRevert.unspecified (
                 instance.record(
                     WORKDAY_EXAMPLE.dateRegister, 
                     WORKDAY_EXAMPLE.dateIn,
@@ -940,7 +944,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     [],
                     "" 
                 ),
-                "COD30"
+                "WorkdayRecord:COD2"
             )
         });
     });
