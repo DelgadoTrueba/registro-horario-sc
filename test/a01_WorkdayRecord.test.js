@@ -15,6 +15,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         STATES, 
         CONST,
         WORKDAY_EXAMPLE,
+        WORKDAY_EXAMPLE_2
     } = WorkdayRecordValues;
 
     let instance;
@@ -717,7 +718,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
         })
     })
 
-    describe.only('ACCESS CONTROL', () => {
+    describe('ACCESS CONTROL', () => {
         const [owner, other] = accounts;
 
         beforeEach(async () => {
@@ -759,6 +760,145 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 null
             );
         });
-
     })
+
+    describe('UNIX TIMESTAMP', () => {
+
+        beforeEach(async () => {
+            instance = await WorkdayRecordContract.new();
+        });
+
+        it('should not be posible to add workdayInfo if dateRegisteris not at midnight', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.OTHERS.invalidDateRegister, 
+                    ZERO,
+                    ZERO,
+                    [],
+                    [],
+                    "" 
+                ),
+                "COD20"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not sorted (1)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateOut,
+                    WORKDAY_EXAMPLE.dateIn,
+                    [],
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not sorted (2)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.OTHERS.pause1[0],
+                    [WORKDAY_EXAMPLE.OTHERS.dateOut],
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not sorted (3)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.OTHERS.dateOut,
+                    [
+                        ...WORKDAY_EXAMPLE.OTHERS.pause2, 
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1
+                    ],
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not sorted (4)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.OTHERS.dateOut,
+                    WORKDAY_EXAMPLE.OTHERS.unsortedPause,
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not from same date (1)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE_2.dateIn,
+                    ZERO,
+                    [],
+                    [],
+                    "" 
+                ),
+                "COD30"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not from same date (2)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE_2.dateOut,
+                    [],
+                    [],
+                    "" 
+                ),
+                "COD30"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not from same date (3)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateOut,
+                    WORKDAY_EXAMPLE_2.pauses,
+                    [],
+                    "" 
+                ),
+                "COD30"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are not from same date (4)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateOut,
+                    [
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1,
+                        ...WORKDAY_EXAMPLE_2.OTHERS.pause1
+                    ],
+                    [],
+                    "" 
+                ),
+                "COD30"
+            )
+        });
+    });
+
 });
