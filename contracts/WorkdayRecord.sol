@@ -23,12 +23,12 @@ contract WorkdayRecord is Ownable {
     enum State {UNREGISTERED, UNCOMPLETED, COMPLETED, MODIFIED}
 
     modifier atState(uint256 dateRegister, State state) {
-        require(workDayRecord[dateRegister].state == state, "COD0");
+        require(workDayRecord[dateRegister].state == state, "WorkdayRecord:COD0");
         _;
     }
 
     modifier atLeast(uint256 dateRegister, State state) {
-        require(workDayRecord[dateRegister].state >= state, "COD0");
+        require(workDayRecord[dateRegister].state >= state, "WorkdayRecord:COD0");
         _;
     }
 
@@ -49,7 +49,7 @@ contract WorkdayRecord is Ownable {
     }
 
     modifier isDateRegisterMidnight(uint256 dateRegister) {
-        require(dateRegister % (24 hours) == 0, "COD20");
+        require((dateRegister > 0) && (dateRegister % (24 hours) == 0), "WorkdayRecord:COD1");
         _;
     }
 
@@ -91,8 +91,6 @@ contract WorkdayRecord is Ownable {
         uint256[] calldata _pausesRemove,
         string calldata _comment
     ) external onlyOwner isDateRegisterMidnight(_dateRegister) {
-        require(_dateRegister != 0, "COD7");
-
         if (_dateIn != 0) setDateIn(_dateRegister, _dateIn);
         if (_pausesAdd.length != 0) addPauses(_dateRegister, _pausesAdd);
         if (_pausesRemove.length != 0) removePauses(_dateRegister, _pausesRemove);
@@ -127,8 +125,8 @@ contract WorkdayRecord is Ownable {
         uint256 prev = 0;
         for (uint8 j = 0; j < aux.length; j++) {
             if (aux[j] != 0) {
-                require((aux[j] > _dateRegister) && (aux[j] < (_dateRegister + 1 days)), "COD30");
-                require(aux[j] > prev, "COD40");
+                require((aux[j] > _dateRegister) && (aux[j] < (_dateRegister + 1 days)), "WorkdayRecord:COD2");
+                require(aux[j] > prev, "WorkdayRecord:COD3");
             }
             prev = aux[j];
         }
@@ -164,7 +162,7 @@ contract WorkdayRecord is Ownable {
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        require(_pauses.length % 2 == 0, "COD1");
+        require(_pauses.length % 2 == 0, "WorkdayRecord:COD4");
         for (uint256 i = 0; i < _pauses.length; i = i + 2) {
             addPause(dateRegister, _pauses[i], _pauses[i + 1]);
         }
@@ -175,7 +173,7 @@ contract WorkdayRecord is Ownable {
         uint256 _dateIn,
         uint256 _dateOut
     ) private {
-        require(workDayRecord[dateRegister].pauses.length < 6, "COD2");
+        require(workDayRecord[dateRegister].pauses.length < 6, "WorkdayRecord:COD5");
         workDayRecord[dateRegister].pauses.push(_dateIn);
         workDayRecord[dateRegister].pauses.push(_dateOut);
         emit PauseEvent(
@@ -193,9 +191,9 @@ contract WorkdayRecord is Ownable {
         atLeast(dateRegister, State.UNCOMPLETED)
         transitionIfTo(dateRegister, State.COMPLETED, State.MODIFIED)
     {
-        require(workDayRecord[dateRegister].pauses.length > 0, "COD6");
-        require(_pauses.length % 2 == 0, "COD1");
-        require(workDayRecord[dateRegister].pauses.length >= _pauses.length, "COD5");
+        require(workDayRecord[dateRegister].pauses.length > 0, "WorkdayRecord:COD6");
+        require(_pauses.length % 2 == 0, "WorkdayRecord:COD4");
+        require(workDayRecord[dateRegister].pauses.length >= _pauses.length, "WorkdayRecord:COD7");
         for (uint256 i = 0; i < _pauses.length; i = i + 2) {
             uint256[] storage pauses = workDayRecord[dateRegister].pauses;
             removePause(pauses, _pauses[i], _pauses[i + 1]);
@@ -224,11 +222,11 @@ contract WorkdayRecord is Ownable {
                 removeElement(pauses, i);
             }
         }
-        require(find, "COD3");
+        require(find, "WorkdayRecord:COD8");
     }
 
     function removeElement(uint256[] storage array, uint256 index) private {
-        require((index < array.length) && (index >= 0), "COD4");
+        require((index < array.length) && (index >= 0), "WorkdayRecord:COD9");
 
         for (uint256 i = index; i < array.length - 1; i++) {
             array[i] = array[i + 1];
@@ -238,15 +236,14 @@ contract WorkdayRecord is Ownable {
 }
 
 // Error String
-/*  0x0 -> This function cannot be called at this stage.
- ** COD1 -> Pauses array must be even
- ** COD2 -> Excedido el numero maximo de pausas registradas (6/2 = 3)
- ** COD3 -> pause.dateIn or pause.DateOut not exist
- ** COD4 -> Invalid index, in removeElement operation
- ** COD5 -> REMOVE ARRAY TO LONGH
- ** COD6 -> pauses array is empty
- ** COD7 -> Invalid dateRegister
- ** COD20 -> MEDIANOCHE
- ** COD30 -> NO MISMO DÍA
- ** COD40 -> TIMESTAMP NO ORDENADOS
+/*  WorkdayRecord:COD0 -> this function cannot be called at this stage
+ ** WorkdayRecord:COD1 -> invalid dateRegister
+ ** WorkdayRecord:COD2 -> dateIn, pauses, dateOut must be from same day
+ ** WorkdayRecord:COD3 -> workday info must be sorted (dateIn < pauses < dateIn)
+ ** WorkdayRecord:COD4 -> Pauses array must be even
+ ** WorkdayRecord:COD5 -> exceeded the maximum number of recorded pauses (3)
+ ** WorkdayRecord:COD6 -> pauses array is empty
+ ** WorkdayRecord:COD7 -> remove array too long
+ ** WorkdayRecord:COD8 -> pause.dateIn or pause.DateOut not exist
+ ** WorkdayRecord:COD9 -> Invalid index, in removeElement operation
  */
