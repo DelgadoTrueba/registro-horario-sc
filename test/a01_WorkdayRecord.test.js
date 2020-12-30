@@ -113,7 +113,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateIn: WORKDAY_EXAMPLE.dateIn 
+                dateIn: WORKDAY_EXAMPLE.dateIn,
+                state: STATES.UNREGISTERED
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
@@ -185,7 +186,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn,
+                state: STATES.UNCOMPLETED
             });
         })
 
@@ -201,7 +203,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateOut: WORKDAY_EXAMPLE.dateOut
+                dateOut: WORKDAY_EXAMPLE.dateOut,
+                state: STATES.UNCOMPLETED
              });
             expectEvent(txReceipt, 'WorkdayRecordState', {
                 dateRegister:WORKDAY_EXAMPLE.dateRegister, 
@@ -223,7 +226,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
                 dateIn: WORKDAY_EXAMPLE.addPauses[0],
-                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+                dateOut: WORKDAY_EXAMPLE.addPauses[1],
+                state: STATES.UNCOMPLETED
              });
         })
 
@@ -250,7 +254,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.REMOVE, 
                 dateIn: WORKDAY_EXAMPLE.removePauses[0],
-                dateOut: WORKDAY_EXAMPLE.removePauses[1]
+                dateOut: WORKDAY_EXAMPLE.removePauses[1],
+                state: STATES.UNCOMPLETED
              });
         })
 
@@ -462,7 +467,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn,
+                state: STATES.COMPLETED
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
@@ -482,7 +488,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
+                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut,
+                state: STATES.COMPLETED
             });
             expectEvent(txReceipt, 'WorkdayRecordState', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
@@ -504,7 +511,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
                 dateIn: WORKDAY_EXAMPLE.addPauses[0],
-                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+                dateOut: WORKDAY_EXAMPLE.addPauses[1],
+                state: STATES.COMPLETED
              });
 
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -537,7 +545,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.REMOVE, 
                 dateIn: WORKDAY_EXAMPLE.removePauses[0],
-                dateOut: WORKDAY_EXAMPLE.removePauses[1]
+                dateOut: WORKDAY_EXAMPLE.removePauses[1],
+                state: STATES.COMPLETED
              });
 
             expectEvent(txReceipt, 'WorkdayRecordState', {
@@ -613,7 +622,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
 
             expectEvent(txReceipt, 'DateInEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn 
+                dateIn: WORKDAY_EXAMPLE.OTHERS.dateIn,
+                state: STATES.MODIFIED
             });
         })
 
@@ -629,7 +639,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
     
             expectEvent(txReceipt, 'DateOutEvent', {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
-                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut 
+                dateOut: WORKDAY_EXAMPLE.OTHERS.dateOut,
+                state: STATES.MODIFIED
             });
         })
 
@@ -658,7 +669,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.ADD, 
                 dateIn: WORKDAY_EXAMPLE.addPauses[0],
-                dateOut: WORKDAY_EXAMPLE.addPauses[1]
+                dateOut: WORKDAY_EXAMPLE.addPauses[1],
+                state: STATES.MODIFIED
              });
         })
 
@@ -684,7 +696,8 @@ contract("WorkdayRecord Contract:", (accounts) => {
                 dateRegister: WORKDAY_EXAMPLE.dateRegister, 
                 action: CONST.REMOVE, 
                 dateIn: WORKDAY_EXAMPLE.removePauses[0],
-                dateOut: WORKDAY_EXAMPLE.removePauses[1]
+                dateOut: WORKDAY_EXAMPLE.removePauses[1],
+                state: STATES.MODIFIED
              });
         })
 
@@ -834,6 +847,37 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.dateIn,
                     WORKDAY_EXAMPLE.OTHERS.dateOut,
                     WORKDAY_EXAMPLE.OTHERS.unsortedPause,
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are equals (1)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateIn,
+                    [],
+                    [],
+                    "" 
+                ),
+                "COD40"
+            )
+        });
+
+        it('should not be posible to add workdayInfo if dates timestamp are equals (2)', async () => {
+            await expectRevert.unspecified(
+                instance.record(
+                    WORKDAY_EXAMPLE.dateRegister, 
+                    WORKDAY_EXAMPLE.dateIn,
+                    WORKDAY_EXAMPLE.dateOut,
+                    [
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1,
+                        ...WORKDAY_EXAMPLE.OTHERS.pause1
+                    ],
                     [],
                     "" 
                 ),
