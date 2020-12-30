@@ -1,0 +1,50 @@
+{
+  "name": "registro-horario-sc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "style-check": "prettier --check ./contracts/**/*.sol",
+    "linter-check": "npx solhint --max-warnings 0 ./contracts/**/*.sol",
+    "check": "npm run linter-check && npm run style-check",
+    "pretest": "npm run check",
+    "test": "truffle test --network besu",
+    "size": "truffle compile & truffle run contract-size",
+    "coverage": "truffle run coverage",
+    "besu": "docker run --name besu --rm -it -p 8545:8545 hyperledger/besu:20.10.3 --network=dev --miner-enabled --miner-coinbase=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins=all --host-allowlist=* --rpc-ws-enabled --rpc-http-enabled --rpc-http-api=ETH, NET, WEB3, DEBUG --data-path=/tmp/tmpDatdir --revert-reason-enabled=true",
+    "ganache": "ganache-cli --host 0.0.0.0 -p 8545"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DelgadoTrueba/registro-horario-sc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DelgadoTrueba/registro-horario-sc/issues"
+  },
+  "homepage": "https://github.com/DelgadoTrueba/registro-horario-sc#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@openzeppelin/test-helpers": "^0.5.10",
+    "@truffle/hdwallet-provider": "^1.2.0",
+    "eth-gas-reporter": "^0.2.20",
+    "ganache-cli": "^6.12.1",
+    "husky": "^4.3.5",
+    "moment": "^2.29.1",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.2",
+    "solhint": "^3.3.2",
+    "solidity-coverage": "^0.7.13",
+    "truffle": "^5.1.57",
+    "truffle-contract-size": "^2.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run check"
+    }
+  }
+}
