@@ -861,6 +861,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                     WORKDAY_EXAMPLE.dateIn,
                     WORKDAY_EXAMPLE.dateIn,
                     [],
+                    [],
                     "" 
                 ),
                 "COD40"
@@ -877,6 +878,7 @@ contract("WorkdayRecord Contract:", (accounts) => {
                         ...WORKDAY_EXAMPLE.OTHERS.pause1,
                         ...WORKDAY_EXAMPLE.OTHERS.pause1
                     ],
+                    [],
                     "" 
                 ),
                 "COD40"
