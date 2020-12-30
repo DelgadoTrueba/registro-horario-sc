@@ -11,9 +11,9 @@ contract WorkdayRecord is Ownable {
      ** DateIn & DateOut. action = new, modified
      ** Pauses. action => add, remove
      */
-    event DateInEvent(uint256 indexed dateRegister, uint256 dateIn);
-    event DateOutEvent(uint256 indexed dateRegister, uint256 dateOut);
-    event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut);
+    event DateInEvent(uint256 indexed dateRegister, uint256 dateIn, uint8 state);
+    event DateOutEvent(uint256 indexed dateRegister, uint256 dateOut, uint8 state);
+    event PauseEvent(uint256 indexed dateRegister, bool action, uint256 dateIn, uint256 dateOut, uint8 state);
 
     /* Evento para obtener todos los registros de forma rapida
      **
@@ -141,7 +141,7 @@ contract WorkdayRecord is Ownable {
     {
         workDayRecord[dateRegister].dateIn = _dateIn;
 
-        emit DateInEvent(dateRegister, _dateIn);
+        emit DateInEvent(dateRegister, _dateIn, uint8(workDayRecord[dateRegister].state));
     }
 
     function setDateOut(uint256 dateRegister, uint256 _dateOut)
@@ -152,7 +152,7 @@ contract WorkdayRecord is Ownable {
     {
         workDayRecord[dateRegister].dateOut = _dateOut;
 
-        emit DateOutEvent(dateRegister, _dateOut);
+        emit DateOutEvent(dateRegister, _dateOut, uint8(workDayRecord[dateRegister].state));
     }
 
     function addComment(uint256 dateRegister, string memory _comment) private atState(dateRegister, State.MODIFIED) {
@@ -183,7 +183,8 @@ contract WorkdayRecord is Ownable {
             /*ADD*/
             true,
             _dateIn,
-            _dateOut
+            _dateOut,
+            uint8(workDayRecord[dateRegister].state)
         );
     }
 
@@ -203,7 +204,8 @@ contract WorkdayRecord is Ownable {
                 /*REMOVE*/
                 false,
                 _pauses[i],
-                _pauses[i + 1]
+                _pauses[i + 1],
+                uint8(workDayRecord[dateRegister].state)
             );
         }
     }
