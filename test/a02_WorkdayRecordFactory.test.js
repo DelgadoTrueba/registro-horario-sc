@@ -1,14 +1,6 @@
 /**********************************************************************/// SMART CONTRACTS
 const WorkdayRecordFactoryContract = artifacts.require("WorkdayRecordFactory");
 const WorkdayRecordContract = artifacts.require("WorkdayRecord");
-/**********************************************************************/// CONSTANTS
-const {
-    BN,
-    expectEvent,
-    expectRevert  
-} = require('@openzeppelin/test-helpers');
-const { assertion } = require('@openzeppelin/test-helpers/src/expectRevert');
-const ZERO = new BN(0);
 
 let instance;
 
