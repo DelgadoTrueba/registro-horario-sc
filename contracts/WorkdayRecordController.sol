@@ -27,5 +27,5 @@ contract WorkdayRecordController {
     }
 }
 /** Error string
- ** WorkdayRecordController:COD0: Currently there is a workdayRecord, you cannot create one again (update it)
+ ** WorkdayRecordController:COD0 -> Currently there is a workdayRecord, you cannot create one again (update it)
  */
